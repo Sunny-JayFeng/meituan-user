@@ -1,0 +1,104 @@
+package jayfeng.com.meituan.personalmessage.bean;
+
+import lombok.Data;
+
+/**
+ * 美团用户
+ * @author JayFeng
+ * @date 2021/2/12
+ */
+@Data
+public class User {
+
+    /**
+     * id
+     */
+    private Integer id;
+
+    /**
+     * 用户名
+     */
+    private String userName;
+
+    /**
+     * 头像
+     * 存图片在服务器上的文件名
+     */
+    private String headImage;
+
+    /**
+     * 电话
+     */
+    private String phone;
+
+    /**
+     * 密码
+     */
+    private String password;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 是否为会员
+     * 0 -- 否
+     * 1 -- 是
+     */
+    private Integer isVIP;
+
+    /**
+     * 是否自动续费
+     * 0 -- 否
+     * 1 -- 是
+     */
+    private Integer automaticRenewal;
+
+    /**
+     * 会员开通时间
+     */
+    private Long vipCreateTime;
+
+    /**
+     * 会员到期时间
+     * 根据开通时间跟会员类型自动计算
+     */
+    private Long vipEndTime;
+
+    /**
+     * 会员类型
+     * 1 -- 7天赠送
+     * 2 -- 月（按 30 天算）
+     * 3 -- 季（ 3 个月，3 * 30 天）
+     * 4 -- 年（ 365 天）
+     * 如果用户不是会员，则这个值为 -1
+     */
+    private Integer vipType;
+
+    /**
+     * 会员等级
+     */
+    private Integer vipGrade;
+
+    /**
+     * 身份证 -- 实名认证
+     */
+    private String idCard;
+
+    /**
+     * 生日
+     */
+    private Long birthday;
+
+    /**
+     * 创建时间
+     */
+    private Long createTime;
+
+    /**
+     * 修改时间
+     */
+    private Long updateTime;
+
+}

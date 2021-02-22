@@ -1,0 +1,120 @@
+package jayfeng.com.meituan.loginregistry.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
+import org.springframework.util.ObjectUtils;
+
+/**
+ * 加密工具类
+ * @author JayFeng
+ * @date 2021/1/29
+ */
+@Component
+public class EncryptUtil {
+
+    @Autowired
+    private static RandomUtil randomUtil = new RandomUtil();
+
+    Logger logger = LoggerFactory.getLogger(EncryptUtil.class);
+
+    private static final int SALT_LENGTH = 22;
+
+    private String getSalt() {
+        return randomUtil.getRandomString(SALT_LENGTH);
+    }
+
+    /**
+     * 密码加密
+     * @param password 明文密码
+     * @return 返回加密后的密码
+     */
+    public String encrypt(String password) {
+        String salt = getSalt();
+        if (ObjectUtils.isEmpty(password)) {
+            // 抛出异常
+        }
+        if (ObjectUtils.isEmpty(salt)) {
+            // 抛出异常
+        }
+        return encrypt(password, salt);
+    }
+
+    public boolean matches(String password, String encryptedPassword) {
+        if (ObjectUtils.isEmpty(password)) {
+            // 抛出异常
+        }
+        if (ObjectUtils.isEmpty(encryptedPassword)) {
+            // 抛出异常
+        }
+        String salt = getSalt(encryptedPassword);
+        String encryptResult = encrypt(password, salt);
+        return encryptResult.equals(encryptedPassword);
+    }
+
+    /**
+     * 加密密码
+     * @param password 明文密码
+     * @param salt 盐
+     * @return 返回加密后的密文
+     */
+    private String encrypt(String password, String salt) {
+        String withoutSaltResult = encryptWithoutSalt(password);
+        String withSaltResult = encryptWithSalt(password, salt).toUpperCase();
+
+        StringBuilder result = new StringBuilder(salt);
+        for (int i = 0; i < 32; i ++) {
+            if (i % 2 == 0) result.append(withoutSaltResult.charAt(i));
+            else result.append(withSaltResult.charAt(i));
+        }
+        return result.toString();
+    }
+
+    /**
+     * 纯 MD5 加密
+     * @param password 明文密码
+     * @return 返回加密后的密文
+     */
+    private String encryptWithoutSalt(String password) {
+        return DigestUtils.md5DigestAsHex(password.getBytes());
+    }
+
+    /**
+     * 加盐加密
+     * @param password 明文密码
+     * @param salt 盐
+     * @return 返回加密后的密文
+     */
+    private String encryptWithSalt(String password, String salt) {
+        password = password + salt;
+        return DigestUtils.md5DigestAsHex(password.getBytes());
+    }
+
+    /**
+     * 解析加密后的密文得到加密时的盐
+     * @param encryptedPassword 加密后的密文
+     * @return 返回该密码加密时的盐
+     */
+    private String getSalt(String encryptedPassword) {
+        return encryptedPassword.substring(0, SALT_LENGTH);
+    }
+
+    public void main(String[] args) {
+//        String password = "123456789";
+//        String result1 = EncryptUtil.encrypt(password);
+//        String result2 = EncryptUtil.encrypt(password);
+//        String result3 = EncryptUtil.encrypt(password);
+//        String result4 = EncryptUtil.encrypt(password);
+//        System.out.println(result1);
+//        System.out.println(result2);
+//        System.out.println(result3);
+//        System.out.println(result4);
+//
+//        System.out.println(EncryptUtil.matches(password, result1));
+//        System.out.println(EncryptUtil.matches(password, result2));
+//        System.out.println(EncryptUtil.matches("12345678", result3));
+//        System.out.println(EncryptUtil.matches("ABC123", result4));
+    }
+}
