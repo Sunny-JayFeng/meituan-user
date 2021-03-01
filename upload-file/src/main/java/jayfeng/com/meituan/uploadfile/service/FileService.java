@@ -31,7 +31,7 @@ public class FileService {
     private Map<Long, List<Map<String, InputStream>>> map = new HashMap<>(8192);
     // 文件都是上传在本地，线程id也是唯一标识，所以可以不用redis
     // 文件上传队列。存放线程 id
-    Queue<Long> taskQueue = new LinkedList<>();
+    Queue<List<Map<String, InputStream>>> taskQueue = new LinkedList<>();
 
     // 关闭 io 流
     private void closeIOStream(OutputStream outputStream, InputStream inputStream) {
@@ -65,27 +65,19 @@ public class FileService {
         return (haveSuffix ? suffix + "/" : "") + UUID.randomUUID().toString().replaceAll("-", "") + (haveSuffix ? "." + suffix : "");
     }
 
-    // 每 10 秒去队列里拿一次看需不需要上传文件
+    /**
+     * 每 10 秒去队列里拿一次看需不需要上传文件
+     */
     @Scheduled(cron = "0/10 * * * * ?")
     private void uploadFileTaskExecute() {
-        Long threadId = taskQueue.poll();
-        if (!ObjectUtils.isEmpty(threadId)) {
-            uploadFile(threadId);
+        List<Map<String, InputStream>> fileList= taskQueue.poll();
+        if (!ObjectUtils.isEmpty(fileList)) {
+            uploadFile(fileList);
         }
     }
 
     /**
-     * 上传文件任务执行，获取数据
-     * @param threadId 线程 id
-     */
-    public void uploadFile(Long threadId) {
-        logger.info("uploadFile 上传文件任务执行");
-        List<Map<String, InputStream>> fileList = map.get(threadId);
-        map.remove(threadId);
-        uploadFile(fileList);
-    }
-
-    /**
+     * 上传文件任务执行
      * 真正的上传文件逻辑
      * @param fileList 文件列表
      */
@@ -157,8 +149,7 @@ public class FileService {
                 throw new UploadFileException("服务端错误, 文件上传失败, 请稍后再试");
             }
         }
-        map.put(threadId, fileList); // 将要上传的文件的所有文件流存到 map。
-        taskQueue.offer(threadId); // 队列push，有任务需要执行
+        taskQueue.offer(fileList); // 队列push，有任务需要执行
         logger.info("uploadFile 上传文件任务已提交");
         return ResponseData.createSuccessResponseData("uploadFileInfo", resultList);
     }
