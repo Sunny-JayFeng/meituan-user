@@ -1,8 +1,7 @@
-package jayfeng.com.meituan.loginregistry.interceptor;
+package jayfeng.com.meituan.personalmessage.interceptor;
 
-import jayfeng.com.meituan.loginregistry.constant.CookieConstant;
-import jayfeng.com.meituan.loginregistry.constant.RedisConstant;
-import jayfeng.com.meituan.loginregistry.handler.InterceptorHandler;
+import jayfeng.com.meituan.personalmessage.constant.RedisConstant;
+import jayfeng.com.meituan.personalmessage.handler.InterceptorHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,9 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * 用户请求拦截器
  * @author JayFeng
- * @date 2020/08/29
+ * @date 2021/3/3
  */
 @Component
 @Slf4j
@@ -31,7 +29,7 @@ public class UserInterceptor extends InterceptorHandler implements HandlerInterc
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws IOException {
-        boolean loginAllReady = preHandle(request, CookieConstant.USER_KEY.getCookieKey(), RedisConstant.USER_UUID_MAP.getRedisMapKey());
+        boolean loginAllReady = preHandler(request, "useruuid", RedisConstant.USER_UUID_MAP.getRedisMapKey());
         if (!loginAllReady) {
             log.info("用户未登录，重定向到登录页面");
             response.sendRedirect("/meituan/login/user/login.html");

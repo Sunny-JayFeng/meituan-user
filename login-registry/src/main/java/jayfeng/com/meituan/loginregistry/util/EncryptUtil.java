@@ -1,7 +1,6 @@
 package jayfeng.com.meituan.loginregistry.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
@@ -13,12 +12,11 @@ import org.springframework.util.ObjectUtils;
  * @date 2021/1/29
  */
 @Component
+@Slf4j
 public class EncryptUtil {
 
     @Autowired
     private static RandomUtil randomUtil = new RandomUtil();
-
-    Logger logger = LoggerFactory.getLogger(EncryptUtil.class);
 
     private static final int SALT_LENGTH = 22;
 

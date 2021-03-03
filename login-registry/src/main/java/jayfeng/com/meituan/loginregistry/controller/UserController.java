@@ -2,8 +2,7 @@ package jayfeng.com.meituan.loginregistry.controller;
 
 import jayfeng.com.meituan.loginregistry.response.ResponseMessage;
 import jayfeng.com.meituan.loginregistry.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +17,8 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/meituan/user")
+@Slf4j
 public class UserController extends BaseController {
-
-    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -33,7 +31,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/loginByCode")
     public ResponseMessage loginByCode(@RequestBody Map<String, String> paramsMap, HttpServletResponse response) {
-        logger.info("loginByCode, paramsMap: {}", paramsMap);
+        log.info("loginByCode, paramsMap: {}", paramsMap);
         return requestSuccess(userService.loginByCode(paramsMap, response));
     }
 
@@ -44,7 +42,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/getIdentifyCode/{phone}")
     public ResponseMessage getIdentifyCode(@PathVariable("phone") String phone) {
-        logger.info("getIdentifyCode, phone: {}", phone);
+        log.info("getIdentifyCode, phone: {}", phone);
         return requestSuccess(userService.sendIdentifyCode(phone));
     }
 
@@ -55,7 +53,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/checkIdentifyCode")
     public ResponseMessage checkIdentifyCode(@RequestBody Map<String, String> paramsMap) {
-        logger.info("checkIdentifyCode, paramsMap: {}", paramsMap);
+        log.info("checkIdentifyCode, paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkIdentifyCode(paramsMap));
     }
 
@@ -67,7 +65,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/loginByPassword")
     public ResponseMessage loginByPassword(@RequestBody Map<String, String> paramsMap, HttpServletResponse response) {
-        logger.info("loginByPassword, paramsMap: {}", paramsMap);
+        log.info("loginByPassword, paramsMap: {}", paramsMap);
         return requestSuccess(userService.loginByPassword(paramsMap, response));
     }
 
@@ -79,7 +77,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/logout")
     public ResponseMessage userLogout(HttpServletRequest request, HttpServletResponse response) {
-        logger.info("userLogout");
+        log.info("userLogout");
         return requestSuccess(userService.userLogout(request, response));
     }
 
@@ -90,7 +88,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/registry")
     public ResponseMessage userRegistry(@RequestBody Map<String, String> registryMessage) {
-        logger.info("userRegistry, registryMessage: {}", registryMessage);
+        log.info("userRegistry, registryMessage: {}", registryMessage);
         return requestSuccess(userService.userRegistry(registryMessage));
     }
 
@@ -101,7 +99,7 @@ public class UserController extends BaseController {
      */
     @DeleteMapping("/closeUserAccount/{id}")
     public ResponseMessage closeUserAccount(@PathVariable("id") Integer id) {
-        logger.info("closeUserAccount, id: {}", id);
+        log.info("closeUserAccount, id: {}", id);
         return requestSuccess(userService.closeUserAccount(id));
     }
 
@@ -112,7 +110,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/changePassword")
     public ResponseMessage changePassword(@RequestBody Map<String, String> paramsMap) {
-        logger.info("changePassword, paramsMap: {}", paramsMap);
+        log.info("changePassword, paramsMap: {}", paramsMap);
         return requestSuccess(userService.changePassword(paramsMap));
     }
 
@@ -123,7 +121,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkAccountSafe")
     public ResponseMessage checkAccountSafe(@RequestBody Map<String, String> paramsMap) {
-        logger.info("checkAccountSafe, paramsMap: {}", paramsMap);
+        log.info("checkAccountSafe, paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkAccountSafe(paramsMap));
     }
 
@@ -134,7 +132,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkExistsTicket/{phone}")
     public ResponseMessage checkExistsTicket(@PathVariable String phone) {
-        logger.info("checkExistsTicket, phone: {}", phone);
+        log.info("checkExistsTicket, phone: {}", phone);
         return requestSuccess(userService.checkExistsTicket(phone));
     }
 
@@ -145,7 +143,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/verifyCheckIdentifyCode")
     public ResponseMessage verifyCheckIdentifyCode(@RequestBody Map<String, String> paramsMap) {
-        logger.info("verifyCheckIdentifyCode, paramsMap: {}", paramsMap);
+        log.info("verifyCheckIdentifyCode, paramsMap: {}", paramsMap);
         return requestSuccess(userService.verifyCheckIdentifyCode(paramsMap));
     }
 
@@ -156,7 +154,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/retrievePassword")
     public ResponseMessage retrievePassword(@RequestBody Map<String, String> paramsMap) {
-        logger.info("retrievePassword, paramsMap: {}", paramsMap);
+        log.info("retrievePassword, paramsMap: {}", paramsMap);
         return requestSuccess(userService.retrievePassword(paramsMap));
     }
 
@@ -167,7 +165,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/checkPhoneExist/{phone}")
     public ResponseMessage checkPhoneExist(@PathVariable("phone") String phone) {
-        logger.info("checkPhoneExist, phone: {}", phone);
+        log.info("checkPhoneExist, phone: {}", phone);
         return requestSuccess(userService.checkPhoneExist(phone));
     }
 
@@ -178,7 +176,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/checkIdCardExist/{idCard}")
     public ResponseMessage checkIdCardExist(@PathVariable("idCard") String idCard) {
-        logger.info("checkIdCardExist, idCard: {}", idCard);
+        log.info("checkIdCardExist, idCard: {}", idCard);
         return requestSuccess(userService.checkIdCardExist(idCard));
     }
 
@@ -189,7 +187,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkUserNameExist")
     public ResponseMessage checkUserNameExist(@RequestBody Map<String, String> paramsMap) {
-        logger.info("checkUserNameExist, paramsMap: {}", paramsMap);
+        log.info("checkUserNameExist, paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkUserNameExist(paramsMap));
     }
 
@@ -200,7 +198,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkEmailExist")
     public ResponseMessage checkEmailExist(@RequestBody Map<String, String> paramsMap) {
-        logger.info("checkEmailExist, paramsMap: {}", paramsMap);
+        log.info("checkEmailExist, paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkEmailExist(paramsMap));
     }
 }

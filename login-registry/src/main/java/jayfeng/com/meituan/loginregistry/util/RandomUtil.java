@@ -1,7 +1,6 @@
 package jayfeng.com.meituan.loginregistry.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
@@ -14,9 +13,8 @@ import java.util.Random;
  * @date 2021/1/29
  */
 @Component
+@Slf4j
 public class RandomUtil {
-
-    Logger logger = LoggerFactory.getLogger(RandomUtil.class);
 
     private static final int DEFAULT_LENGTH = 16;
 

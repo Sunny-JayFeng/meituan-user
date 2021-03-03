@@ -1,7 +1,6 @@
 package jayfeng.com.meituan.loginregistry.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -14,9 +13,9 @@ import java.time.ZoneId;
  * @date 2021/1/12
  */
 @Component
+@Slf4j
 public class DateUtil {
 
-    private Logger logger = LoggerFactory.getLogger(DateUtil.class);
     private Long boundTime = 24 * 3600 * 14 * 1000L; // 极限时间 14 天
 
     /**
@@ -36,7 +35,7 @@ public class DateUtil {
     public Boolean timeIsOverBoundTime(Long oldTime) {
         Long nowTime = System.currentTimeMillis();
         Boolean result = (nowTime - oldTime) <= boundTime;
-        logger.info("timeIsOverBoundTime, nowTime: {}, oldTime: {}, result: {}", getDate(nowTime), getDate(oldTime), result);
+        log.info("timeIsOverBoundTime, nowTime: {}, oldTime: {}, result: {}", getDate(nowTime), getDate(oldTime), result);
         return result;
     }
 

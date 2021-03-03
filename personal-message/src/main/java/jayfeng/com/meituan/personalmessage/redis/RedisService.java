@@ -1,7 +1,6 @@
 package jayfeng.com.meituan.personalmessage.redis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +10,8 @@ import org.springframework.stereotype.Service;
  * @date 2021/2/8
  */
 @Service
+@Slf4j
 public class RedisService {
-
-    private Logger logger = LoggerFactory.getLogger(RedisService.class);
 
     @Autowired
     private RedisOperate redisOperate;
@@ -26,7 +24,7 @@ public class RedisService {
      */
     public Boolean hasThisUUID(String redisKey, String sessionId) {
         Boolean result = redisOperate.isExistsKeyForHash(redisKey, sessionId);
-        logger.info("hasThisUUID redis缓存中是否存在这个uuid, redisKey: {}, sessionId: {}, result: {}", redisKey, sessionId, result);
+        log.info("hasThisUUID redis缓存中是否存在这个uuid, redisKey: {}, sessionId: {}, result: {}", redisKey, sessionId, result);
         return result;
     }
 

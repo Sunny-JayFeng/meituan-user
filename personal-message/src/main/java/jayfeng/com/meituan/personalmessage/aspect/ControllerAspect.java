@@ -2,13 +2,12 @@ package jayfeng.com.meituan.personalmessage.aspect;
 
 import jayfeng.com.meituan.personalmessage.exception.RequestForbiddenException;
 import jayfeng.com.meituan.personalmessage.exception.ServerBusyException;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -26,9 +25,8 @@ import java.util.Map;
  */
 @Aspect
 @Component
+@Slf4j
 public class ControllerAspect {
-
-    Logger logger = LoggerFactory.getLogger(ControllerAspect.class);
 
     // 存放每个线程来请求的开始时间 key 为线程 id
     private Map<Long, ThreadLocal<Long>> threadLocalMap = new HashMap<>(16384);
@@ -42,7 +40,7 @@ public class ControllerAspect {
      * controller.类名  哪一个类, * 表示所有类
      * controller.类名.方法名(参数)  * 表示所有方法 (..) 表示任何参数
      */
-    @Pointcut("execution(* jayfeng.meituan.personalmessage.controller.*.*(..))")
+    @Pointcut("execution(* jayfeng.com.meituan.personalmessage.controller.*.*(..))")
     public void requestInterface() {
 
     }
@@ -59,7 +57,7 @@ public class ControllerAspect {
 
         HttpServletRequest request = this.getHttpServletRequest();
         if (!isRequestFromBrowser(request)) {
-            logger.info("请求不是来自浏览器, 拒绝处理");
+            log.info("请求不是来自浏览器, 拒绝处理");
             throw new RequestForbiddenException("您无权访问该服务");
         }
     }
@@ -82,7 +80,7 @@ public class ControllerAspect {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
         if (servletRequestAttributes == null) {
-            logger.info("请求无法获取到 ServletRequestAttributes 对象");
+            log.info("请求无法获取到 ServletRequestAttributes 对象");
             throw new ServerBusyException("服务器繁忙");
         }
         return servletRequestAttributes;
@@ -111,8 +109,8 @@ public class ControllerAspect {
     @AfterReturning(returning = "result", pointcut = "requestInterface()")
     public void requestInterfaceDoAfterReturning(Object result) {
         ThreadLocal<Long> startTimeThreadLocal = threadLocalMap.get(Thread.currentThread().getId());
-        logger.info("请求耗时: {}ms", System.currentTimeMillis() - startTimeThreadLocal.get());
-        logger.info("请求结果: {}", result);
+        log.info("请求耗时: {}ms", System.currentTimeMillis() - startTimeThreadLocal.get());
+        log.info("请求结果: {}", result);
     }
 
 }

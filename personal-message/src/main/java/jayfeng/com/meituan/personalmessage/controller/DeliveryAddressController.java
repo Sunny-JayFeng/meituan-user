@@ -3,8 +3,7 @@ package jayfeng.com.meituan.personalmessage.controller;
 import jayfeng.com.meituan.personalmessage.bean.DeliveryAddress;
 import jayfeng.com.meituan.personalmessage.response.ResponseMessage;
 import jayfeng.com.meituan.personalmessage.service.DeliveryAddressService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/meituan/user")
+@Slf4j
 public class DeliveryAddressController extends BaseController {
-
-    Logger logger = LoggerFactory.getLogger(DeliveryAddressController.class);
 
     @Autowired
     private DeliveryAddressService deliveryAddressService;
@@ -29,7 +27,7 @@ public class DeliveryAddressController extends BaseController {
      */
     @GetMapping("/getUserAllDeliveryAddress/{userId}")
     public ResponseMessage getUserAllDeliveryAddress(@PathVariable("userId") Integer userId) {
-        logger.info("getUserAllDeliveryAddress 获取用户所有收货地址, userId: {}", userId);
+        log.info("getUserAllDeliveryAddress 获取用户所有收货地址, userId: {}", userId);
         return requestSuccess(deliveryAddressService.getUserAllDeliveryAddress(userId));
     }
 
@@ -40,7 +38,7 @@ public class DeliveryAddressController extends BaseController {
      */
     @GetMapping("/getDefaultAddress{userId}")
     public ResponseMessage getDefaultAddress(@PathVariable("userId") Integer userId) {
-        logger.info("getDefaultAddress 获取用户默认收货地址, userId: {}", userId);
+        log.info("getDefaultAddress 获取用户默认收货地址, userId: {}", userId);
         return requestSuccess(deliveryAddressService.getDefaultAddress(userId));
     }
 
@@ -51,7 +49,7 @@ public class DeliveryAddressController extends BaseController {
      */
     @PostMapping("/addDeliveryAddress")
     public ResponseMessage addDeliveryAddress(@RequestBody DeliveryAddress deliveryAddress) {
-        logger.info("addDeliveryAddress 添加收货地址, deliveryAddress: {}", deliveryAddress);
+        log.info("addDeliveryAddress 添加收货地址, deliveryAddress: {}", deliveryAddress);
         return requestSuccess(deliveryAddressService.addDeliveryAddress(deliveryAddress));
     }
 
@@ -62,7 +60,7 @@ public class DeliveryAddressController extends BaseController {
      */
     @DeleteMapping("/removeDeliveryAddress/{id}")
     public ResponseMessage removeDeliveryAddress(@PathVariable("id") Integer id) {
-        logger.info("removeDeliveryAddress 删除收货地址, id: {}", id);
+        log.info("removeDeliveryAddress 删除收货地址, id: {}", id);
         return requestSuccess(deliveryAddressService.removeDeliveryAddress(id));
     }
 
@@ -73,7 +71,7 @@ public class DeliveryAddressController extends BaseController {
      */
     @PutMapping("/changeDeliveryAddress")
     public ResponseMessage changeDeliveryAddress(@RequestBody DeliveryAddress deliveryAddress) {
-        logger.info("changeDeliveryAddress 修改收货地址, deliveryAddress: {}", deliveryAddress);
+        log.info("changeDeliveryAddress 修改收货地址, deliveryAddress: {}", deliveryAddress);
         return requestSuccess(deliveryAddressService.changeDeliveryAddress(deliveryAddress));
     }
 
@@ -85,7 +83,7 @@ public class DeliveryAddressController extends BaseController {
      */
     @PutMapping("/setDefaultDeliveryAddress/{userId}/{deliveryAddressId}")
     public ResponseMessage setDefaultDeliveryAddress(@PathVariable("userId") Integer userId, @PathVariable("deliveryAddressId") Integer deliveryAddressId) {
-        logger.info("setDefaultDeliveryAddress 设置默认收货地址, userId: {}, deliveryAddressId: {}", userId, deliveryAddressId);
+        log.info("setDefaultDeliveryAddress 设置默认收货地址, userId: {}, deliveryAddressId: {}", userId, deliveryAddressId);
         return requestSuccess(deliveryAddressService.setDefaultDeliveryAddress(userId, deliveryAddressId));
     }
 

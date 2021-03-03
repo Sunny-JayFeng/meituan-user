@@ -1,8 +1,7 @@
 package jayfeng.com.meituan.loginregistry.util;
 
 import jayfeng.com.meituan.loginregistry.constant.CookieConstant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
@@ -14,9 +13,8 @@ import javax.servlet.http.HttpServletResponse;
  * @date 2020/08/29
  */
 @Component
+@Slf4j
 public class CookieManagement {
-
-    private Logger logger = LoggerFactory.getLogger(CookieManagement.class);
 
     /**
      * 创建一个 cookie
@@ -46,7 +44,7 @@ public class CookieManagement {
         if (cookies != null && cookies.length != 0) {
             for (Cookie cookie : cookies) {
                 if (key.equals(cookie.getName())) {
-                    logger.info("removeCookie, key: {}", key);
+                    log.info("removeCookie, key: {}", key);
                     cookie.setMaxAge(0);
                     // 必须设置相同的 path 和 domain， setMaxAge 才有效
                     cookie.setPath(CookieConstant.PATH.getCookiePath());
@@ -76,7 +74,7 @@ public class CookieManagement {
      * @param cookie cookie
      */
     public void setCookie(HttpServletResponse response, Cookie cookie) {
-        logger.info("setCookie, key: {}, value: {}", cookie.getName(), cookie.getValue());
+        log.info("setCookie, key: {}, value: {}", cookie.getName(), cookie.getValue());
         response.addCookie(cookie);
     }
 

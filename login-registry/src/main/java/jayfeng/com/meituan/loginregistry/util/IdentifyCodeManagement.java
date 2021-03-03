@@ -7,9 +7,8 @@ import com.aliyuncs.IAcsClient;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
-import jayfeng.meituan.loginregistry.redis.RedisService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jayfeng.com.meituan.loginregistry.redis.RedisService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,10 +21,10 @@ import java.util.concurrent.locks.ReentrantLock;
  * @date 2020/08/30
  */
 @Component
+@Slf4j
 public class IdentifyCodeManagement {
 
     private static Random random = new Random();
-    private Logger logger = LoggerFactory.getLogger(IdentifyCodeManagement.class);
 
     @Autowired
     private RedisService redisService;
@@ -47,7 +46,7 @@ public class IdentifyCodeManagement {
             }
         }
         addIdentifyCodeToRedis(phone, identifyCode);
-        logger.info("getIdentifyCode, phone: {}, identifyCode: {}", phone, identifyCode);
+        log.info("getIdentifyCode, phone: {}, identifyCode: {}", phone, identifyCode);
         return identifyCode;
     }
 
@@ -62,7 +61,7 @@ public class IdentifyCodeManagement {
             identifyCode.append(random.nextInt(8) + 1);
         }
         addIdentifyCodeToRedis(phone, identifyCode.toString());
-        logger.info("createIdentifyCode, phone: {}, identifyCode: {}", phone, identifyCode);
+        log.info("createIdentifyCode, phone: {}, identifyCode: {}", phone, identifyCode);
         return identifyCode.toString();
     }
 
@@ -82,9 +81,9 @@ public class IdentifyCodeManagement {
     public void removeIdentifyCode(String phone) {
         Boolean result = redisService.removeIdentifyCode(phone);
         if (result == null || result) {
-            logger.info("removeIdentifyCode, 验证码移除成功, phone: {}", phone);
+            log.info("removeIdentifyCode, 验证码移除成功, phone: {}", phone);
         } else {
-            logger.info("removeIdentifyCode, 验证码移除失败, phone: {}", phone);
+            log.info("removeIdentifyCode, 验证码移除失败, phone: {}", phone);
         }
     }
 
@@ -112,7 +111,7 @@ public class IdentifyCodeManagement {
 
         try {
             CommonResponse response = client.getCommonResponse(request);
-            logger.info("sendIdentifyCode, 验证码发送结果, responseData: {}", response.getData());
+            log.info("sendIdentifyCode, 验证码发送结果, responseData: {}", response.getData());
             return response.getData();
         } catch (ClientException e) {
             e.printStackTrace();

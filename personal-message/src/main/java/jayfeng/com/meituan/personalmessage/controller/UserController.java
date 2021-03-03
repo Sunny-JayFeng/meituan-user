@@ -2,8 +2,7 @@ package jayfeng.com.meituan.personalmessage.controller;
 
 import jayfeng.com.meituan.personalmessage.response.ResponseMessage;
 import jayfeng.com.meituan.personalmessage.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +14,9 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/meituan/user")
+@Slf4j
 public class UserController extends BaseController {
 
-    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -30,7 +29,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/changeHeadImage/{userId}")
     public ResponseMessage changeHeadImage(@PathVariable("userId") Integer userId, @RequestParam("headImage") String headImage) {
-        logger.info("changeHeadImage 修改用户头像 userId: {}, headImage: {}", userId, headImage);
+        log.info("changeHeadImage 修改用户头像 userId: {}, headImage: {}", userId, headImage);
         return requestSuccess(userService.changeHeadImage(userId, headImage));
     }
 
@@ -42,7 +41,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/changeUserName/{userId}")
     public ResponseMessage changeUserName(@PathVariable("userId") Integer userId, @RequestBody Map<String, String> paramsMap) {
-        logger.info("changeUserName 修改用户昵称 userId: {}, paramsMap: {}", userId, paramsMap);
+        log.info("changeUserName 修改用户昵称 userId: {}, paramsMap: {}", userId, paramsMap);
         return requestSuccess(userService.changeUserName(userId, paramsMap));
     }
 
@@ -54,7 +53,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/changePassword/{userId}")
     public ResponseMessage changePassword(@PathVariable("userId") Integer userId, @RequestBody Map<String, String> paramsMap) {
-        logger.info("changePassword 修改密码 userId: {}, paramsMap: {}", userId, paramsMap);
+        log.info("changePassword 修改密码 userId: {}, paramsMap: {}", userId, paramsMap);
         return requestSuccess(userService.changePassword(userId, paramsMap));
     }
 
@@ -66,7 +65,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/changeBirthday/{userId}")
     public ResponseMessage changeBirthday(@PathVariable("userId") Integer userId, @RequestParam("birthday") Long birthday) {
-        logger.info("changeBirthday 修改生日 userId: {}, birthday: {}", userId, birthday);
+        log.info("changeBirthday 修改生日 userId: {}, birthday: {}", userId, birthday);
         return requestSuccess(userService.changeBirthday(userId, birthday));
     }
 
@@ -78,7 +77,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/openVIP/{userId}")
     public ResponseMessage openVIP(@PathVariable("userId") Integer userId, @RequestBody Map<String, String> paramsMap) {
-        logger.info("openVIP 开通会员 userId: {}, paramsMap: {}", userId, paramsMap);
+        log.info("openVIP 开通会员 userId: {}, paramsMap: {}", userId, paramsMap);
         return requestSuccess(userService.openVIP(userId, paramsMap));
     }
 
@@ -90,7 +89,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/automaticRenewal/{userId}/{automaticRenewal}")
     public ResponseMessage setAutomaticRenewal(@PathVariable("userId") Integer userId, @PathVariable("automaticRenewal") Integer automaticRenewal) {
-        logger.info("setAutomaticRenewal 修改会员是否自动续费 userId: {}, automaticRenewal: {}", userId, automaticRenewal);
+        log.info("setAutomaticRenewal 修改会员是否自动续费 userId: {}, automaticRenewal: {}", userId, automaticRenewal);
         return requestSuccess(userService.setAutomaticRenewal(userId, automaticRenewal));
     }
 
@@ -102,7 +101,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/renewalVIP/{userId}")
     public ResponseMessage renewalVIP(@PathVariable("userId") Integer userId, @RequestBody Map<String, String> paramsMap) {
-        logger.info("renewalVIP 会员续费, userId: {}, paramsMap: {}", userId, paramsMap);
+        log.info("renewalVIP 会员续费, userId: {}, paramsMap: {}", userId, paramsMap);
         return requestSuccess(userService.renewalVIP(userId, paramsMap));
     }
 

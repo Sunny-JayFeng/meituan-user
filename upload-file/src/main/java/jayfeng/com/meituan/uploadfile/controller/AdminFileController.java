@@ -3,8 +3,7 @@ package jayfeng.com.meituan.uploadfile.controller;
 import jayfeng.com.meituan.uploadfile.constant.FilePathEnum;
 import jayfeng.com.meituan.uploadfile.response.ResponseMessage;
 import jayfeng.com.meituan.uploadfile.service.FileService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +17,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/meituan/admin")
+@Slf4j
 public class AdminFileController extends BaseController {
-
-    Logger logger = LoggerFactory.getLogger(AdminFileController.class);
 
     @Autowired
     private FileService fileService;
@@ -32,7 +30,7 @@ public class AdminFileController extends BaseController {
      */
     @PostMapping("/uploadFile")
     public ResponseMessage uploadFile(HttpServletRequest request) {
-        logger.info("uploadFile 上传文件");
+        log.info("uploadFile 上传文件");
         return requestSuccess(fileService.uploadFile(request, FilePathEnum.ADMIN_BASIC_FILE_PATH.basicFilePath()));
     }
 
@@ -43,7 +41,7 @@ public class AdminFileController extends BaseController {
      */
     @DeleteMapping("/deleteFile")
     public ResponseMessage deleteFile(@RequestParam("fileName") String fileName) {
-        logger.info("deleteFile 删除文件 fileName: {}", fileName);
+        log.info("deleteFile 删除文件 fileName: {}", fileName);
         return requestSuccess(fileService.deleteFile(FilePathEnum.ADMIN_BASIC_FILE_PATH.basicFilePath(), fileName));
     }
 
@@ -54,7 +52,7 @@ public class AdminFileController extends BaseController {
      */
     @DeleteMapping("/batchDeleteFile")
     public ResponseMessage batchDeleteFile(@RequestBody List<String> fileNameList) {
-        logger.info("batchDeleteFile 批量删除文件");
+        log.info("batchDeleteFile 批量删除文件");
         return requestSuccess(fileService.batchDeleteFile(FilePathEnum.ADMIN_BASIC_FILE_PATH.basicFilePath(), fileNameList));
     }
 

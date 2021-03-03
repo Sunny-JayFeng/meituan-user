@@ -8,8 +8,7 @@ import jayfeng.com.meituan.loginregistry.dao.UserDao;
 import jayfeng.com.meituan.loginregistry.redis.RedisService;
 import jayfeng.com.meituan.loginregistry.response.ResponseData;
 import jayfeng.com.meituan.loginregistry.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +28,8 @@ import java.util.UUID;
  * @date 2020/08/29
  */
 @Service
+@Slf4j
 public class UserService {
-
-    private Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserDao userDao;
@@ -62,28 +60,28 @@ public class UserService {
         String phone = paramsMap.get("phone");
         String identifyCode = paramsMap.get("identifyCode");
         if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode)) {
-            logger.info("loginByCode 用户验证码登录失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
+            log.info("loginByCode 用户验证码登录失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
             return ResponseData.createFailResponseData("userLoginByCodeInfo", false, "手机号或验证码为空", "phone_or_identify_code_is_empty");
         }
         // 如果手机号格式不符合要求
         if (!patternMatch.isPhone(phone)) {
-            logger.info("loginByCode 用户验证码登录失败, 手机号格式不正确, phone: {}", phone);
+            log.info("loginByCode 用户验证码登录失败, 手机号格式不正确, phone: {}", phone);
             return ResponseData.createFailResponseData("userLoginByCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
 
         if (checkIdentifyCode(phone, identifyCode)) { // 如果验证码正确
             User user = userDao.selectOneByPhone(phone);
             if (user != null) {
-                logger.info("loginByCode 用户验证码登录成功, user: {}", user);
+                log.info("loginByCode 用户验证码登录成功, user: {}", user);
                 loginSuccess(response);
                 user.setPassword(null); // 返回前端，不展示密码
                 return ResponseData.createSuccessResponseData("userLoginByCodeInfo", user);
             } else {
-                logger.info("loginByCode 用户验证码登录失败, 当前用户不存在, phone: {}", phone);
+                log.info("loginByCode 用户验证码登录失败, 当前用户不存在, phone: {}", phone);
                 return ResponseData.createFailResponseData("userLoginByCodeInfo", false, "当前用户不存在", "user_is_not_exist");
             }
         } else {
-            logger.info("loginByCode 用户验证码登录失败, 验证码错误");
+            log.info("loginByCode 用户验证码登录失败, 验证码错误");
             return ResponseData.createFailResponseData("userLoginByCodeInfo", false, "验证码错误", "identify_code_error");
         }
     }
@@ -98,27 +96,27 @@ public class UserService {
         String phone = paramsMap.get("phone");
         String password = paramsMap.get("password");
         if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(password)) {
-            logger.info("loginByPassword, 用户手机号密码登录失败, 手机号或密码为空, phone: {}, password: {}", phone, password);
+            log.info("loginByPassword, 用户手机号密码登录失败, 手机号或密码为空, phone: {}, password: {}", phone, password);
             return ResponseData.createFailResponseData("userLoginByPasswordInfo", false, "手机号或密码为空", "phone_or_password_is_empty");
         }
         // 如果手机号格式不符合要求
         if (!patternMatch.isPhone(phone)) {
-            logger.info("loginByPassword 用户手机号密码登录失败, 手机号格式不正确, phone: {}", phone);
+            log.info("loginByPassword 用户手机号密码登录失败, 手机号格式不正确, phone: {}", phone);
             return ResponseData.createFailResponseData("userLoginByPasswordInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
         User user = userDao.selectOneByPhone(phone);
         if (user == null) {
-            logger.info("loginByPassword 用户手机号密码登录失败, 没有此用户");
+            log.info("loginByPassword 用户手机号密码登录失败, 没有此用户");
             return ResponseData.createFailResponseData("userLoginByPasswordInfo", false, "当前用户未注册, 请先注册", "user_never_registry");
         }
         // 验证明文密码和加密密码是否匹配
         if (encryptUtil.matches(password, user.getPassword())) {
-            logger.info("loginByPassword 用户手机号密码登录成功, user: {}", user);
+            log.info("loginByPassword 用户手机号密码登录成功, user: {}", user);
             loginSuccess(response);
             user.setPassword(null);
             return ResponseData.createSuccessResponseData("userLoginByPasswordInfo", user);
         } else {
-            logger.info("loginByPassword, 用户手机号密码登录失败,账号或密码错误 phone: {}, password: {}", phone, password);
+            log.info("loginByPassword, 用户手机号密码登录失败,账号或密码错误 phone: {}, password: {}", phone, password);
             return ResponseData.createFailResponseData("userLoginByPasswordInfo", false, "账号或密码错误，请重新输入", "phone_or_password_error");
         }
     }
@@ -141,7 +139,7 @@ public class UserService {
      */
     public ResponseData userLogout(HttpServletRequest request, HttpServletResponse response) {
         String userUUID = cookieManagement.removeCookie(response, request.getCookies(), CookieConstant.USER_KEY.getCookieKey());
-        logger.info("userLogout 用户登出成功, userUUID: {}", userUUID);
+        log.info("userLogout 用户登出成功, userUUID: {}", userUUID);
         redisService.deleteUUID(RedisConstant.USER_UUID_MAP.getRedisMapKey(), userUUID);
         return ResponseData.createSuccessResponseData("userLogout", userUUID);
     }
@@ -153,17 +151,17 @@ public class UserService {
      */
     public ResponseData sendIdentifyCode(String phone) {
         if (ObjectUtils.isEmpty(phone)) {
-            logger.info("sendIdentifyCode 验证码发送失败, 手机号为空");
+            log.info("sendIdentifyCode 验证码发送失败, 手机号为空");
             return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "手机号为空", "phone_is_empty");
         }
         // 如果手机号格式不符合要求
         if (!patternMatch.isPhone(phone)) {
-            logger.info("sendIdentifyCode 验证码发送失败, 手机号格式不正确, phone: {}", phone);
+            log.info("sendIdentifyCode 验证码发送失败, 手机号格式不正确, phone: {}", phone);
             return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
         // 如果手机号不为空并且格式正确
         String identifyCode = identifyCodeManagement.getIdentifyCode(phone);
-        logger.info("sendIdentifyCode, 成功获取到验证码: {}", identifyCode);
+        log.info("sendIdentifyCode, 成功获取到验证码: {}", identifyCode);
         String resultData = identifyCodeManagement.sendIdentifyCode(phone, identifyCode);
         // 处理发送结果
         Gson gson = new Gson();
@@ -172,22 +170,22 @@ public class UserService {
         String code = sendResult.get("Code").toString();
         // 处理响应回前端的数据
         if ("OK".equals(message) && "OK".equals(code)) {
-            logger.info("sendIdentifyCode 验证码发送成功, identifyCode: {}", identifyCode);
+            log.info("sendIdentifyCode 验证码发送成功, identifyCode: {}", identifyCode);
             return ResponseData.createSuccessResponseData("sendIdentifyCodeInfo", true);
         } else if (message.contains("分钟级")) { // 分钟级流控 1 分钟 1条
-            logger.info("sendIdentifyCode 触发分钟级流控, 验证码发送失败");
+            log.info("sendIdentifyCode 触发分钟级流控, 验证码发送失败");
             identifyCodeManagement.removeIdentifyCode(phone);
             return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "频繁获取验证码，请1分钟后重试", "get_identify_code_busy_minute");
         } else if (message.contains("小时级")) { // 小时级流控 1 小时 5 条
-            logger.info("sendIdentifyCode 触发小时级流控, 验证码发送失败");
+            log.info("sendIdentifyCode 触发小时级流控, 验证码发送失败");
             identifyCodeManagement.removeIdentifyCode(phone);
             return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "频繁获取验证码，请1小时后重试", "get_identify_code_busy_hour");
         } else if (message.contains("天级")) { // 天级流控 1 天 10 条
-            logger.info("sendIdentifyCode 触发天级流控, 验证码发送失败");
+            log.info("sendIdentifyCode 触发天级流控, 验证码发送失败");
             identifyCodeManagement.removeIdentifyCode(phone);
             return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "频繁获取验证码，请24小时后重试", "get_identify_code_busy_day");
         } else {
-            logger.info("sendIdentifyCode 服务器繁忙, 验证码发送失败");
+            log.info("sendIdentifyCode 服务器繁忙, 验证码发送失败");
             identifyCodeManagement.removeIdentifyCode(phone);
             return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "服务器繁忙", "busy");
         }
@@ -202,18 +200,18 @@ public class UserService {
         String phone = paramsMap.get("phone");
         String identifyCode = paramsMap.get("identifyCode");
         if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode)) {
-            logger.info("checkIdentifyCode 验证失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
+            log.info("checkIdentifyCode 验证失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
             return ResponseData.createFailResponseData("checkIdentifyCodeInfo", false, "手机号或验证码为空", "phone_or_identify_code_is_empty");
         }
         if (!patternMatch.isPhone(phone)) {
-            logger.info("checkIdentifyCode 验证失败, 手机号格式不正确");
+            log.info("checkIdentifyCode 验证失败, 手机号格式不正确");
             return ResponseData.createFailResponseData("checkIdentifyCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
         if (checkIdentifyCode(phone, identifyCode)) {
-            logger.info("checkIdentifyCode 验证码正确");
+            log.info("checkIdentifyCode 验证码正确");
             return ResponseData.createSuccessResponseData("checkIdentifyCodeInfo", true);
         } else {
-            logger.info("checkIdentifyCode 验证码错误");
+            log.info("checkIdentifyCode 验证码错误");
             return ResponseData.createFailResponseData("checkIdentifyCodeInfo", false, "验证码错误", "identify_code_error");
         }
     }
@@ -227,11 +225,11 @@ public class UserService {
     private Boolean checkIdentifyCode(String phone, String identifyCode) {
         String realIdentifyCode = identifyCodeManagement.getIdentifyCode(phone);
         if (identifyCode.equals(realIdentifyCode)) {
-            logger.info("checkIdentifyCode 验证码正确");
+            log.info("checkIdentifyCode 验证码正确");
             identifyCodeManagement.removeIdentifyCode(phone); // 删除验证码
             return true;
         } else {
-            logger.info("checkIdentifyCode 验证码错误, identifyCode: {}, realIdentifyCode: {}", identifyCode, realIdentifyCode);
+            log.info("checkIdentifyCode 验证码错误, identifyCode: {}, realIdentifyCode: {}", identifyCode, realIdentifyCode);
             return false;
         }
     }
@@ -247,13 +245,13 @@ public class UserService {
         String password = registryMessage.get("password");
         String identifyCode = registryMessage.get("identifyCode");
         if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(identifyCode)) {
-            logger.info("userRegistry 用户注册失败, 手机号、密码或验证码为空, phone: {}, password: {}, identifyCode: {}", phone, password, identifyCode);
+            log.info("userRegistry 用户注册失败, 手机号、密码或验证码为空, phone: {}, password: {}, identifyCode: {}", phone, password, identifyCode);
             return ResponseData.createFailResponseData("userRegistryInfo", false, "手机号、密码或验证码为空", "phone_or_password_or_identify_code_is_empty");
         }
 
         // 检查手机号和密码是否符合要求
         if (!checkPhoneAndPassword(phone, password)) {
-            logger.info("userRegistry 用户注册失败, 手机号或密码不符合要求, phone: {}, password: {}", phone, password);
+            log.info("userRegistry 用户注册失败, 手机号或密码不符合要求, phone: {}, password: {}", phone, password);
             return ResponseData.createFailResponseData("userRegistryInfo", false, "手机号或密码不符合要求", "phone_or_password_error");
 
         } else if (userDao.selectOneByPhone(phone) != null) {
@@ -264,11 +262,11 @@ public class UserService {
             userDao.insertUser(user); // 新增一个用户
             createUserName(user); // 根据新增的用户的 id，创建一个昵称
             userDao.updateUserNameById(user); // 更新用户的昵称
-            logger.info("userRegistry 用户注册成功, user: {}", user);
+            log.info("userRegistry 用户注册成功, user: {}", user);
             return ResponseData.createSuccessResponseData("userRegistryInfo", user);
 
         } else {
-            logger.info("userRegistry 用户注册失败, 用户注册失败，手机验证码不正确");
+            log.info("userRegistry 用户注册失败, 用户注册失败，手机验证码不正确");
             return ResponseData.createFailResponseData("userRegistryInfo", false, "验证码错误", "identify_code_error");
         }
     }
@@ -323,9 +321,9 @@ public class UserService {
      * @return 响应数据，返回 ResponseData 对象
      */
     public ResponseData closeUserAccount(Integer id) {
-        logger.info("closeUserAccount, 注销一个用户, id: {}", id);
+        log.info("closeUserAccount, 注销一个用户, id: {}", id);
         userDao.deleteUserById(id);
-        logger.info("closeUserAccount, 注销成功");
+        log.info("closeUserAccount, 注销成功");
         return ResponseData.createSuccessResponseData("closeUserAccountInf", null);
     }
 
@@ -341,13 +339,13 @@ public class UserService {
         String newPassword = paramsMap.get("newPassword");
         String identifyCode = paramsMap.get("identifyCode");
         if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(oldPassword) || ObjectUtils.isEmpty(newPassword) || ObjectUtils.isEmpty(identifyCode)) {
-            logger.info("changePassword 修改密码失败, 手机号、旧密码、新密码或验证码为空, phone: {}, oldPassword: {}, newPassword: {}, identifyCode: {}", phone, oldPassword, newPassword, identifyCode);
+            log.info("changePassword 修改密码失败, 手机号、旧密码、新密码或验证码为空, phone: {}, oldPassword: {}, newPassword: {}, identifyCode: {}", phone, oldPassword, newPassword, identifyCode);
             return ResponseData.createFailResponseData("changePasswordInfo", false, "手机号、旧密码、新密码或验证码为空", "phone_or_old_password_or_new_password_or_identify_code_is_empty");
         }
 
         // 如果手机号格式不符合要求
         if (!patternMatch.isPhone(phone)) {
-            logger.info("changePassword 修改密码失败, 手机号格式不正确, phone: {}", phone);
+            log.info("changePassword 修改密码失败, 手机号格式不正确, phone: {}", phone);
             return ResponseData.createFailResponseData("changePasswordInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
 
@@ -355,14 +353,14 @@ public class UserService {
         if (user != null) {
             if (checkIdentifyCode(phone, identifyCode)) {
                 userDao.updateUserPasswordByPhone(phone, newPassword, System.currentTimeMillis());
-                logger.info("changePassword 修改密码成功, oldPassword: {}, newPassword: {}", oldPassword, newPassword);
+                log.info("changePassword 修改密码成功, oldPassword: {}, newPassword: {}", oldPassword, newPassword);
                 return ResponseData.createSuccessResponseData("changePasswordInfo", user);
             } else {
-                logger.info("changePassword 修改密码失败, 验证码错误");
+                log.info("changePassword 修改密码失败, 验证码错误");
                 return ResponseData.createFailResponseData("changePasswordInfo", false, "验证码错误", "identify_code_error");
             }
         } else {
-            logger.info("changePassword 修改密码失败, 手机号或旧密码错误, phone: {}, oldPassword: {}", phone, oldPassword);
+            log.info("changePassword 修改密码失败, 手机号或旧密码错误, phone: {}, oldPassword: {}", phone, oldPassword);
             return ResponseData.createFailResponseData("changePasswordInfo", false, "手机号或旧密码错误", "phone_or_old_password_error");
         }
     }
@@ -375,7 +373,7 @@ public class UserService {
     public ResponseData checkAccountSafe(Map<String, String> paramsMap) {
         String account = paramsMap.get("account");
         if (ObjectUtils.isEmpty(account)) {
-            logger.info("checkAccountSafe 检测安全性失败, 账号为空");
+            log.info("checkAccountSafe 检测安全性失败, 账号为空");
             return ResponseData.createFailResponseData("checkAccountSafeInfo", null, "账号为空", "account_is_empty");
         }
         Boolean checkResult;
@@ -387,29 +385,29 @@ public class UserService {
         } else {
             checkResult = userNameAccountSafeCheck(tempUser, account);
         }
-        logger.info("checkAccountSafe 账号安全性校验结果：account: {}, checkResult: {}", account, checkResult);
+        log.info("checkAccountSafe 账号安全性校验结果：account: {}, checkResult: {}", account, checkResult);
         if (!checkResult) {
-            logger.info("checkAccountSafe 账号安全性校验结果: account: {}, checkResult: 当前账号行为异常，已被限制登录或注册", account);
+            log.info("checkAccountSafe 账号安全性校验结果: account: {}, checkResult: 当前账号行为异常，已被限制登录或注册", account);
             return ResponseData.createFailResponseData("checkAccountSafeInfo", false, "当前账号行为异常，已被限制登录或注册", "account_is_unsafe");
         }
         Integer times = redisService.getCheckSafeTimes(tempUser.getId().toString());
         if (times > 8) {
-            logger.info("checkAccountSafe 重置密码操作超过限制次数 times: {}", times);
+            log.info("checkAccountSafe 重置密码操作超过限制次数 times: {}", times);
             return ResponseData.createFailResponseData("checkAccountSafeInfo", false, "操作过于频繁, 请 24 小时后重试", "frequent_operations_error");
         } else {
-            logger.info("checkAccountSafe 重置密码操作次数增加 1, times: {}", ++ times);
+            log.info("checkAccountSafe 重置密码操作次数增加 1, times: {}", ++ times);
             redisService.setCheckSafeTimes(tempUser.getId().toString(), times);
         }
         // 判断是否需要进行二次校验
         Boolean needCheckAgain = needCheckAgain(tempUser.getUpdateTime());
-        logger.info("checkAccountSafe 是否需要进行二次校验, needCheckAgain: {}", needCheckAgain);
+        log.info("checkAccountSafe 是否需要进行二次校验, needCheckAgain: {}", needCheckAgain);
         if (needCheckAgain) { // 需要进行二次验证
             ticketManagement.createTicket(tempUser.getPhone()); // 生成一个 ticket
             // 需要二次验证，返回手机号码，短信验证
-            logger.info("checkAccountSafe 需要二次校验");
+            log.info("checkAccountSafe 需要二次校验");
             return ResponseData.createFailResponseData("checkAccountSafeInfo", tempUser.getPhone(), "您需要进行二次校验", "need_check_again");
         } else { // 不需要进行二次验证
-            logger.info("checkAccountSafe 不需要二次校验");
+            log.info("checkAccountSafe 不需要二次校验");
             return ResponseData.createSuccessResponseData("checkAccountSafeInfo", true);
         }
     }
@@ -420,16 +418,16 @@ public class UserService {
      * @return 响应数据，返回 ResponseData 对象
      */
     public ResponseData checkExistsTicket(String phone) {
-        logger.info("checkExistsTicket, phone: {}", phone);
+        log.info("checkExistsTicket, phone: {}", phone);
         if (ObjectUtils.isEmpty(phone)) {
-            logger.info("checkExistsTicket 校验失败, 手机号为空");
+            log.info("checkExistsTicket 校验失败, 手机号为空");
             return ResponseData.createFailResponseData("checkTicketExistsInfo", false, "身份验证码已过期，请重新校验，即将返回找回登录密码页面", "over_time");
         }
         if (ticketManagement.ticketExists(phone)) {
-            logger.info("checkExistsTicket 校验成功, ticket 存在");
+            log.info("checkExistsTicket 校验成功, ticket 存在");
             return ResponseData.createSuccessResponseData("checkTicketExistsInfo", true);
         } else {
-            logger.info("checkExistsTicket 校验失败, ticket 已过期");
+            log.info("checkExistsTicket 校验失败, ticket 已过期");
             return ResponseData.createFailResponseData("checkTicketExistsInfo", false, "身份验证码已过期，请重新校验，即将返回找回登录密码页面", "over_time");
         }
     }
@@ -442,13 +440,13 @@ public class UserService {
     private Boolean phoneAccountSafeCheck(User user, String phone) {
         User tempUser = userDao.selectOneUpdateTimeByPhone(phone);
         if (tempUser == null) {
-            logger.info("phoneAccountSafeCheck 通过手机号重置密码，安全性校验, phone: {}, safeCheckResult: {}", phone, false);
+            log.info("phoneAccountSafeCheck 通过手机号重置密码，安全性校验, phone: {}, safeCheckResult: {}", phone, false);
             return false;
         } else {
             user.setId(tempUser.getId());
             user.setPhone(tempUser.getPhone());
             user.setUpdateTime(tempUser.getUpdateTime());
-            logger.info("phoneAccountSafeCheck 通过手机号重置密码，安全性校验, phone: {}, safeCheckResult: {}", phone, true);
+            log.info("phoneAccountSafeCheck 通过手机号重置密码，安全性校验, phone: {}, safeCheckResult: {}", phone, true);
             return true;
         }
     }
@@ -461,13 +459,13 @@ public class UserService {
     private Boolean userNameAccountSafeCheck(User user, String userName) {
         User tempUser = userDao.selectOneUpdateTimeByUserName(userName);
         if (tempUser == null) {
-            logger.info("userNameAccountSafeCheck 通过用户名重置密码，安全性校验, userName: {}, safeCheckResult: {}", userName, false);
+            log.info("userNameAccountSafeCheck 通过用户名重置密码，安全性校验, userName: {}, safeCheckResult: {}", userName, false);
             return false;
         } else {
             user.setId(tempUser.getId());
             user.setPhone(tempUser.getPhone());
             user.setUpdateTime(tempUser.getUpdateTime());
-            logger.info("userNameAccountSafeCheck 通过用户名重置密码，安全性校验, userName: {}, safeCheckResult: {}", userName, true);
+            log.info("userNameAccountSafeCheck 通过用户名重置密码，安全性校验, userName: {}, safeCheckResult: {}", userName, true);
             return true;
         }
     }
@@ -480,13 +478,13 @@ public class UserService {
     private Boolean emailAccountSafeCheck(User user, String email) {
         User tempUser = userDao.selectOneUpdateTimeByEmail(email);
         if (tempUser == null) {
-            logger.info("emailAccountSafeCheck 通过邮箱重置密码，安全性校验, email: {}, safeCheckResult: {}", email, false);
+            log.info("emailAccountSafeCheck 通过邮箱重置密码，安全性校验, email: {}, safeCheckResult: {}", email, false);
             return false;
         } else {
             user.setId(tempUser.getId());
             user.setPhone(tempUser.getPhone());
             user.setUpdateTime(tempUser.getUpdateTime());
-            logger.info("emailAccountSafeCheck 通过邮箱重置密码，安全性校验, email: {}, safeCheckResult: {}", email, true);
+            log.info("emailAccountSafeCheck 通过邮箱重置密码，安全性校验, email: {}, safeCheckResult: {}", email, true);
             return true;
         }
     }
@@ -499,7 +497,7 @@ public class UserService {
     private Boolean needCheckAgain(Long updateTime) {
 //        Boolean result = dateUtil.timeIsOverBoundTime(updateTime);
         Boolean result = true; // 目前先认定均需要二次验证
-        logger.info("needCheckAgain, result: {}", result);
+        log.info("needCheckAgain, result: {}", result);
         return result;
     }
 
@@ -512,32 +510,32 @@ public class UserService {
         String phone = paramsMap.get("phone");
         String identifyCode = paramsMap.get("identifyCode");
         if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode)) {
-            logger.info("verifyCheckIdentifyCode 二次校验失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
+            log.info("verifyCheckIdentifyCode 二次校验失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
             return ResponseData.createFailResponseData("verifyCheckIdentifyCodeInfo", false, "手机号或验证码为空", "phone_or_identify_code_is_empty");
         }
 
-        logger.info("verifyCheckIdentifyCode 二次校验, phone: {}, identifyCode: {}", phone, identifyCode);
+        log.info("verifyCheckIdentifyCode 二次校验, phone: {}, identifyCode: {}", phone, identifyCode);
         // 如果手机号不满足格式要求
         if (!patternMatch.isPhone(phone)) {
-            logger.info("verifyCheckIdentifyCode 二次校验失败, 手机号格式不正确, phone: {}", phone);
+            log.info("verifyCheckIdentifyCode 二次校验失败, 手机号格式不正确, phone: {}", phone);
             return ResponseData.createFailResponseData("verifyCheckIdentifyCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
 
         User user = userDao.selectOneByPhone(phone);
         if (user != null) { // 如果当前用户存在
             if (checkIdentifyCode(phone, identifyCode)) { // 验证码正确
-                logger.info("verifyCheckIdentifyCode 二次校验, 验证码正确");
+                log.info("verifyCheckIdentifyCode 二次校验, 验证码正确");
                 String ticket = ticketManagement.getTicket(phone); // 获取校验前已生成的 ticket
                 Map<String, String> infoMap = new HashMap<>(4);
                 infoMap.put("user", phone);
                 infoMap.put("ticket", ticket);
                 return ResponseData.createSuccessResponseData("verifyCheckIdentifyCodeInfo", infoMap);
             } else { // 验证码不正确
-                logger.info("verifyCheckIdentifyCode 二次校验, 验证码不正确");
+                log.info("verifyCheckIdentifyCode 二次校验, 验证码不正确");
                 return ResponseData.createFailResponseData("verifyCheckIdentifyCodeInfo", false, "验证码错误", "identify_code_error");
             }
         } else { // 如果当前用户不存在
-            logger.info("verifyCheckIdentifyCode 二次校验, 不存在此用户, phone: {}", phone);
+            log.info("verifyCheckIdentifyCode 二次校验, 不存在此用户, phone: {}", phone);
             return ResponseData.createFailResponseData("verifyCheckIdentifyCodeInfo", false, "当前手机号未注册", "phone_not_have_registry");
         }
 
@@ -556,30 +554,30 @@ public class UserService {
         String ticket = paramsMap.get("ticket");
 
         if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(newPassword) || ObjectUtils.isEmpty(ticket)) {
-            logger.info("retrievePassword 密码重置失败, 账号、新密码或 ticket 为空, account: {}, newPassword: {}, ticket: {}", account, newPassword, ticket);
+            log.info("retrievePassword 密码重置失败, 账号、新密码或 ticket 为空, account: {}, newPassword: {}, ticket: {}", account, newPassword, ticket);
             return ResponseData.createFailResponseData("retrievePasswordInfo", false, "账号、新密码或 ticket 为空", "account_or_new_password_or_ticket_is_empty");
         }
 
         if (!patternMatch.isPhone(account)) {
-            logger.info("retrievePassword 密码重置失败, 手机号格式不正确, account: {}", account);
+            log.info("retrievePassword 密码重置失败, 手机号格式不正确, account: {}", account);
             return ResponseData.createFailResponseData("retrievePasswordInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
 
         if (!patternMatch.checkPassword(newPassword)) {
-            logger.info("retrievePassword 密码重置失败, 新密码不符合要求, newPassword: {}", newPassword);
+            log.info("retrievePassword 密码重置失败, 新密码不符合要求, newPassword: {}", newPassword);
             return ResponseData.createFailResponseData("retrievePasswordInfo", false, "新密码不符合要求", "new_password_error");
         }
 
         String realTicket = ticketManagement.getTicket(account);
         if (StringUtils.isEmpty(realTicket) || !ticket.equals(realTicket)) {
-            logger.info("retrievePassword 密码重置失败, 安全通行码已过期, ticket: {}, realTicket: {}", ticket, realTicket);
+            log.info("retrievePassword 密码重置失败, 安全通行码已过期, ticket: {}, realTicket: {}", ticket, realTicket);
             return ResponseData.createFailResponseData("retrievePasswordInfo", false, "安全通行码已过期", "safe_code_already_time_out");
         }
 
         // 走到这里，证明是通过验证了，重置密码
         newPassword = encryptUtil.encrypt(newPassword);
         userDao.updateUserPasswordByPhone(account, newPassword, System.currentTimeMillis());
-        logger.info("retrievePassword 密码重置成功, account: {}, newPassword: {}", account, newPassword);
+        log.info("retrievePassword 密码重置成功, account: {}, newPassword: {}", account, newPassword);
         ticketManagement.removeTicket(account); // 移除 ticket
 
         return ResponseData.createSuccessResponseData("retrievePasswordInfo", true);
@@ -592,16 +590,16 @@ public class UserService {
      */
     public ResponseData checkPhoneExist(String phone) {
         if (ObjectUtils.isEmpty(phone)) {
-            logger.info("checkPhoneExist 校验失败, 手机号为空");
+            log.info("checkPhoneExist 校验失败, 手机号为空");
             return ResponseData.createFailResponseData("checkPhoneExistInfo", null, "手机号为空", "phone_is_empty");
         }
         // 如果手机号格式不符合要求
         if (!patternMatch.isPhone(phone)) {
-            logger.info("checkPhoneExist 校验失败, 手机号格式不正确, phone: {}", phone);
+            log.info("checkPhoneExist 校验失败, 手机号格式不正确, phone: {}", phone);
             return ResponseData.createFailResponseData("checkPhoneExistInfo", null, "手机号格式不正确", "phone_pattern_error");
         }
         Boolean isExist = userDao.selectOneByPhone(phone) != null;
-        logger.info("checkPhoneExist 校验成功, result: {}", isExist);
+        log.info("checkPhoneExist 校验成功, result: {}", isExist);
         return ResponseData.createSuccessResponseData("checkPhoneExist", isExist);
     }
 
@@ -612,7 +610,7 @@ public class UserService {
      */
     public ResponseData checkIdCardExist(String idCard) {
         Boolean isExist = userDao.selectOneByIdCard(idCard) != null;
-        logger.info("checkIdCardExist, result: {}", isExist);
+        log.info("checkIdCardExist, result: {}", isExist);
         return ResponseData.createSuccessResponseData("checkIdCardExist", isExist);
     }
 
@@ -624,7 +622,7 @@ public class UserService {
     public ResponseData checkUserNameExist(Map<String, String> paramsMap) {
         String userName = paramsMap.get("userName");
         Boolean isExist = userDao.selectOneByUserName(userName) != null;
-        logger.info("checkUserNameExist, result: {}", isExist);
+        log.info("checkUserNameExist, result: {}", isExist);
         return ResponseData.createSuccessResponseData("checkUserNameExistInfo", isExist);
     }
 
@@ -637,11 +635,11 @@ public class UserService {
         String email = paramsMap.get("email");
         // 如果邮箱格式不正确
         if (!patternMatch.isEmail(email)) {
-            logger.info("retrievePasswordByEmail, 邮箱格式不正确, email: {}", email);
+            log.info("retrievePasswordByEmail, 邮箱格式不正确, email: {}", email);
             return ResponseData.createFailResponseData("resetPasswordByEmailInfo", null, "邮箱格式不正确", "email_pattern_error");
         }
         Boolean isExist = userDao.selectOneByEmail(email) != null;
-        logger.info("checkEmailExist, result: {}", isExist);
+        log.info("checkEmailExist, result: {}", isExist);
         return ResponseData.createSuccessResponseData("checkEmailExistInfo", isExist);
     }
 

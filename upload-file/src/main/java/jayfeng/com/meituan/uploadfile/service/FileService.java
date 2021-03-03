@@ -2,9 +2,8 @@ package jayfeng.com.meituan.uploadfile.service;
 
 import jayfeng.com.meituan.uploadfile.exception.UploadFileException;
 import jayfeng.com.meituan.uploadfile.response.ResponseData;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -23,9 +22,8 @@ import java.util.stream.Collectors;
  */
 @Service
 @EnableScheduling
+@Slf4j
 public class FileService {
-
-    Logger logger = LoggerFactory.getLogger(FileService.class);
 
     // 存放要上传到本地的文件的文件流，key为线程id，value这一个请求要上传的所有文件的流
     private Map<Long, List<Map<String, InputStream>>> map = new HashMap<>(8192);
@@ -82,7 +80,7 @@ public class FileService {
      * @param fileList 文件列表
      */
     private void uploadFile(List<Map<String, InputStream>> fileList) {
-        logger.info("uploadFile 开始上传文件，总共要上传 {} 个文件", fileList.size());
+        log.info("uploadFile 开始上传文件，总共要上传 {} 个文件", fileList.size());
         long startTime = System.currentTimeMillis();
         for (Map<String, InputStream> file : fileList) {
             for (String fileAbsolutePath : file.keySet()) {
@@ -90,17 +88,17 @@ public class FileService {
                 File directoryFile = new File(directory);
                 if (!directoryFile.exists()) {
                     if (directoryFile.mkdirs()) {
-                        logger.info("uploadFile 文件夹创建失败, 该文件无法上传");
+                        log.info("uploadFile 文件夹创建失败, 该文件无法上传");
                         break;
                     }
                 }
-                logger.info("uploadFile 上传文件, 文件绝对路径: {}", fileAbsolutePath);
+                log.info("uploadFile 上传文件, 文件绝对路径: {}", fileAbsolutePath);
                 File newFile = new File(fileAbsolutePath);
                 FileOutputStream outputStream = null;
                 InputStream inputStream = file.get(fileAbsolutePath);
                 try {
                     if (!newFile.createNewFile()) {
-                        logger.info("uploadFile 文件创建失败, 该文件无法上传");
+                        log.info("uploadFile 文件创建失败, 该文件无法上传");
                         break;
                     }
                     outputStream = new FileOutputStream(newFile);
@@ -108,15 +106,15 @@ public class FileService {
                     Thumbnails.of(inputStream).scale(1f).outputQuality(0.1f).toOutputStream(outputStream);
                 } catch (IOException e) {
                     StackTraceElement stackTraceElement = e.getStackTrace()[0];
-                    logger.info("出现异常, 异常类型: {}", e.toString());
-                    logger.info("异常位置: {} 类的第 {} 行, 出现异常的方法: {}", stackTraceElement.getClassName(), stackTraceElement.getLineNumber(), stackTraceElement.getMethodName());
+                    log.info("出现异常, 异常类型: {}", e.toString());
+                    log.info("异常位置: {} 类的第 {} 行, 出现异常的方法: {}", stackTraceElement.getClassName(), stackTraceElement.getLineNumber(), stackTraceElement.getMethodName());
                     throw new UploadFileException("服务端错误, 文件上传失败, 请稍后再试");
                 } finally {
                     closeIOStream(outputStream, inputStream);
                 }
             }
         }
-        logger.info("uploadFile 文件上传完成, 耗时: {}", System.currentTimeMillis() - startTime);
+        log.info("uploadFile 文件上传完成, 耗时: {}", System.currentTimeMillis() - startTime);
     }
 
     /**
@@ -144,13 +142,13 @@ public class FileService {
                 fileList.add(tempMap);
             } catch (IOException e) {
                 StackTraceElement stackTraceElement = e.getStackTrace()[0];
-                logger.info("出现异常, 异常类型: {}", e.toString());
-                logger.info("异常位置: {} 类的第 {} 行, 出现异常的方法: {}", stackTraceElement.getClassName(), stackTraceElement.getLineNumber(), stackTraceElement.getMethodName());
+                log.info("出现异常, 异常类型: {}", e.toString());
+                log.info("异常位置: {} 类的第 {} 行, 出现异常的方法: {}", stackTraceElement.getClassName(), stackTraceElement.getLineNumber(), stackTraceElement.getMethodName());
                 throw new UploadFileException("服务端错误, 文件上传失败, 请稍后再试");
             }
         }
         taskQueue.offer(fileList); // 队列push，有任务需要执行
-        logger.info("uploadFile 上传文件任务已提交");
+        log.info("uploadFile 上传文件任务已提交");
         return ResponseData.createSuccessResponseData("uploadFileInfo", resultList);
     }
 
@@ -165,7 +163,7 @@ public class FileService {
             return ResponseData.createFailResponseData("deleteFileInfo", false, "文件名为空, 无法删除", "file_name_is_empty");
         }
         String absolutePath = basicFilePath + fileName;
-        logger.info("deleteFile 删除文件, absolutePath: {}, fileName: {}", absolutePath, fileName);
+        log.info("deleteFile 删除文件, absolutePath: {}, fileName: {}", absolutePath, fileName);
         File file = new File(absolutePath);
         file.delete();
         return ResponseData.createSuccessResponseData("deleteFileInfo", true);
@@ -181,7 +179,7 @@ public class FileService {
         if (fileNameList == null) return ResponseData.createFailResponseData("batchDeleteFileInfo", false, "文件名, 无法删除", "file_name_is_empty");
         // 过滤掉空字符串
         fileNameList = fileNameList.stream().filter(t->!ObjectUtils.isEmpty(t)).collect(Collectors.toList());
-        logger.info("batchDeleteFile, 批量删除文件 basicFilePath: {}, size: {}", basicFilePath, fileNameList.size());
+        log.info("batchDeleteFile, 批量删除文件 basicFilePath: {}, size: {}", basicFilePath, fileNameList.size());
         if (fileNameList.isEmpty()) return ResponseData.createFailResponseData("batchDeleteFileInfo", false, "文件名, 无法删除", "file_name_is_empty");
         for (String fileName : fileNameList) {
             deleteFile(basicFilePath, fileName);

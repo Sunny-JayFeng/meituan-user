@@ -3,8 +3,7 @@ package jayfeng.com.meituan.personalmessage.service;
 import jayfeng.com.meituan.personalmessage.bean.DeliveryAddress;
 import jayfeng.com.meituan.personalmessage.dao.DeliveryAddressDao;
 import jayfeng.com.meituan.personalmessage.response.ResponseData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -17,9 +16,8 @@ import java.util.List;
  * @date 2021/2/8
  */
 @Service
+@Slf4j
 public class DeliveryAddressService {
-
-    private Logger logger = LoggerFactory.getLogger(DeliveryAddressService.class);
 
     @Autowired
     private DeliveryAddressDao deliveryAddressDao;
@@ -31,9 +29,9 @@ public class DeliveryAddressService {
      * @return 返回用户所有的收货地址
      */
     public ResponseData getUserAllDeliveryAddress(Integer userId) {
-        logger.info("getUserAllDeliveryAddress 获取用户所有的收货地址, userId: {}", userId);
+        log.info("getUserAllDeliveryAddress 获取用户所有的收货地址, userId: {}", userId);
         if (ObjectUtils.isEmpty(userId)) {
-            logger.info("getUserAllDeliveryAddress 获取收货地址失败, 用户 id 为空");
+            log.info("getUserAllDeliveryAddress 获取收货地址失败, 用户 id 为空");
             return ResponseData.createFailResponseData("getUserAllDeliveryAddressInfo", false, "获取收货地址失败, 无法找到用户", "can_not_find_user");
         }
         List<DeliveryAddress> deliveryAddressList = deliveryAddressDao.selectUserAllDeliveryAddress(userId);
@@ -47,12 +45,12 @@ public class DeliveryAddressService {
      */
     public ResponseData getDefaultAddress(Integer userId) {
         if (ObjectUtils.isEmpty(userId)) {
-            logger.info("getDefaultAddress 获取用户默认收货地址失败, 用户 id 为空");
+            log.info("getDefaultAddress 获取用户默认收货地址失败, 用户 id 为空");
             return ResponseData.createFailResponseData("getDefaultAddressInfo", false, "无法查找用户", "can_not_find_user");
         }
-        logger.info("getDefaultAddress 获取用户默认收货地址, userId: {}", userId);
+        log.info("getDefaultAddress 获取用户默认收货地址, userId: {}", userId);
         DeliveryAddress deliveryAddress = deliveryAddressDao.selectDefaultDeliveryAddress(userId);
-        logger.info("getDefaultAddress 获取用户默认收货地址, deliveryAddress: {}", deliveryAddress);
+        log.info("getDefaultAddress 获取用户默认收货地址, deliveryAddress: {}", deliveryAddress);
         return ResponseData.createSuccessResponseData("getDefaultAddressInfo", deliveryAddress);
     }
 
@@ -63,9 +61,9 @@ public class DeliveryAddressService {
      * @return 返回添加是否成功
      */
     public ResponseData addDeliveryAddress(DeliveryAddress deliveryAddress) {
-        logger.info("addDeliveryAddress 添加收货地址, deliveryAddress: {}", deliveryAddress);
+        log.info("addDeliveryAddress 添加收货地址, deliveryAddress: {}", deliveryAddress);
         if (ObjectUtils.isEmpty(deliveryAddress)) {
-            logger.info("addDeliveryAddress 添加收货地址失败, 收货地址为空");
+            log.info("addDeliveryAddress 添加收货地址失败, 收货地址为空");
             return ResponseData.createFailResponseData("addDeliveryAddressInfo", false, "添加收货地址失败, 收货地址为空", "the_address_is_empty");
         }
         deliveryAddressDao.insertDeliveryAddress(deliveryAddress);
@@ -78,21 +76,21 @@ public class DeliveryAddressService {
      * @return 返回是否删除成功
      */
     public ResponseData removeDeliveryAddress(Integer deliveryAddressId) {
-        logger.info("removeDeliveryAddress 根据收货地址 id 删除一个收货地址, deliveryAddressId: {}", deliveryAddressId);
+        log.info("removeDeliveryAddress 根据收货地址 id 删除一个收货地址, deliveryAddressId: {}", deliveryAddressId);
 
         if(ObjectUtils.isEmpty(deliveryAddressId)) {
-            logger.info("removeDeliveryAddress 收货地址删除失败, 收货地址 id 为空");
+            log.info("removeDeliveryAddress 收货地址删除失败, 收货地址 id 为空");
             return ResponseData.createFailResponseData("removeDeliveryAddressInfo", false, "删除失败, 找不到此收货地址", "can_not_find_this_address");
         }
         DeliveryAddress deliveryAddress = deliveryAddressDao.selectOneById(deliveryAddressId);
 
         // 如果不存在这个收货地址
         if (ObjectUtils.isEmpty(deliveryAddress)) {
-            logger.info("removeDeliveryAddress 收货地址删除失败, 不存在这个收货地址");
+            log.info("removeDeliveryAddress 收货地址删除失败, 不存在这个收货地址");
             return ResponseData.createFailResponseData("removeDeliveryAddressInfo", false, "不存在这个收货地址", "the_delivery_address_is_not_exists");
         }
         deliveryAddressDao.deleteDeliveryAddressById(deliveryAddressId);
-        logger.info("removeDeliveryAddress 收货地址删除成功");
+        log.info("removeDeliveryAddress 收货地址删除成功");
         return ResponseData.createSuccessResponseData("removeDeliveryAddressInfo", true);
     }
 
@@ -102,20 +100,20 @@ public class DeliveryAddressService {
      * @return 返回是否修改成功
      */
     public ResponseData changeDeliveryAddress(DeliveryAddress deliveryAddress) {
-        logger.info("changeDeliveryAddress 修改收货地址, deliveryAddress: {}", deliveryAddress);
+        log.info("changeDeliveryAddress 修改收货地址, deliveryAddress: {}", deliveryAddress);
         if (ObjectUtils.isEmpty(deliveryAddress)) {
-            logger.info("changeDeliveryAddress 修改收货地址信息失败, 收货地址信息为空");
+            log.info("changeDeliveryAddress 修改收货地址信息失败, 收货地址信息为空");
             return ResponseData.createFailResponseData("changeDeliveryAddressInfo", false, "修改收货地址信息失败, 收货地址信息为空", "the_address_message_is_empty");
         }
         DeliveryAddress theAddress = deliveryAddressDao.selectOneById(deliveryAddress.getId());
 
         // 如果不存在这个收货地址
         if (ObjectUtils.isEmpty(theAddress)) {
-            logger.info("changeDeliveryAddress 修改收货地址失败, 不存在当前收货地址");
+            log.info("changeDeliveryAddress 修改收货地址失败, 不存在当前收货地址");
             return ResponseData.createFailResponseData("changeDeliveryAddressInfo", false, "收货地址修改失败, 不存在这个收货地址", "the_address_is_not_exists");
         }
 
-        logger.info("changeDeliveryAddress 修改收货地址成功, 旧收货地址信息: {}, 新收货地址信息: {}", theAddress, deliveryAddress);
+        log.info("changeDeliveryAddress 修改收货地址成功, 旧收货地址信息: {}, 新收货地址信息: {}", theAddress, deliveryAddress);
         deliveryAddressDao.updateDeliveryAddressMessage(deliveryAddress, System.currentTimeMillis());
         return ResponseData.createSuccessResponseData("changeDeliveryAddressInfo", true);
     }
@@ -127,23 +125,23 @@ public class DeliveryAddressService {
      * @return 返回修改是否成功
      */
     public ResponseData setDefaultDeliveryAddress(Integer userId, Integer deliveryAddressId) {
-        logger.info("setDefaultDeliveryAddress 设置默认收货地址, userId: {}, deliveryAddressId: {}", userId, deliveryAddressId);
+        log.info("setDefaultDeliveryAddress 设置默认收货地址, userId: {}, deliveryAddressId: {}", userId, deliveryAddressId);
 
         if (ObjectUtils.isEmpty(userId)) {
-            logger.info("setDefaultDeliveryAddress 设置默认收货地址失败, 用户 id 为空");
+            log.info("setDefaultDeliveryAddress 设置默认收货地址失败, 用户 id 为空");
             return ResponseData.createFailResponseData("setDefaultDeliveryAddressInfo", false, "设置失败, 无法找到用户", "can_not_find_user");
         }
         DeliveryAddress deliveryAddress = deliveryAddressDao.selectOneById(deliveryAddressId);
         // 如果不存在当前收货地址
         if (ObjectUtils.isEmpty(deliveryAddress)) {
-            logger.info("setDefaultDeliveryAddress 设置默认收货地址失败, 不存在这个收货地址");
+            log.info("setDefaultDeliveryAddress 设置默认收货地址失败, 不存在这个收货地址");
             return ResponseData.createFailResponseData("setDefaultDeliveryAddressInfo", false, "设置失败, 不存在这个收货地址", "the_address_is_not_exists");
         }
         // 先取消原先的默认收货地址
         deliveryAddressDao.cancelDefaultAddress(userId, System.currentTimeMillis());
         // 设置默认收货地址
         deliveryAddressDao.updateDefaultAddress(deliveryAddressId, System.currentTimeMillis());
-        logger.info("setDefaultDeliveryAddress 设置默认收货地址成功, 当前默认收货地址: {}", deliveryAddress);
+        log.info("setDefaultDeliveryAddress 设置默认收货地址成功, 当前默认收货地址: {}", deliveryAddress);
         return ResponseData.createSuccessResponseData("setDefaultDeliveryAddressInfo", true);
     }
 
