@@ -7,8 +7,13 @@ import com.aliyuncs.IAcsClient;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
+import jayfeng.com.meituan.loginregistry.bean.AccessKey;
+import jayfeng.com.meituan.loginregistry.constant.AccessKeyConstant;
 import jayfeng.com.meituan.loginregistry.redis.RedisService;
+import jayfeng.com.meituan.loginregistry.service.AccessKeyService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +30,12 @@ import java.util.concurrent.locks.ReentrantLock;
 public class IdentifyCodeManagement {
 
     private static Random random = new Random();
+    private Logger logger = LoggerFactory.getLogger(IdentifyCodeManagement.class);
 
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private AccessKeyService accessKeyService;
 
     /**
      * 获取一个验证码
@@ -94,8 +102,13 @@ public class IdentifyCodeManagement {
      * @return 返回验证码发送结果
      */
     public String sendIdentifyCode(String phone, String identifyCode) {
+        AccessKey accessKey = accessKeyService.getAccessKey(AccessKeyConstant.SHORT_MESSAGE_CODE.getAccessKeyType());
+        if (accessKey == null) {
+            logger.info("sendIdentifyCode 验证码发送失败, 无法取得密钥");
+            return null;
+        }
         phone = phone.replaceAll(" ", "");
-        DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", "LTAI4G1kSKHa5pj3fAQaw6ga", "WrONCVMYfderLXfUdi5EGroTXIQagk");
+        DefaultProfile profile = DefaultProfile.getProfile(accessKey.getRegionId(), accessKey.getAccessKeyId(), accessKey.getSecret());
         IAcsClient client = new DefaultAcsClient(profile);
 
         CommonRequest request = new CommonRequest();
@@ -111,7 +124,7 @@ public class IdentifyCodeManagement {
 
         try {
             CommonResponse response = client.getCommonResponse(request);
-            log.info("sendIdentifyCode, 验证码发送结果, responseData: {}", response.getData());
+            logger.info("sendIdentifyCode, 验证码发送结果, responseData: {}", response.getData());
             return response.getData();
         } catch (ClientException e) {
             e.printStackTrace();
