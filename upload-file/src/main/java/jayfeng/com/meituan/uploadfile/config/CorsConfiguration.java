@@ -12,20 +12,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfiguration {
 
-    /**
-     * 配置允许跨域
-     * @return 返回 WebMvc 配置
-     */
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOriginPatterns("*")
-                        .allowCredentials(true)
-                        .allowedMethods("GET", "POST", "PUT", "DELETE");
-            }
-        };
-    }
+//    /**
+//     * 配置允许跨域
+//     * @return 返回 WebMvc 配置
+//     */
+//    @Bean
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//            public void addCorsMappings(CorsRegistry registry) {
+//                registry.addMapping("/**")
+//                        .allowedOriginPatterns("*")
+//                        .allowCredentials(true)
+//                        .allowedMethods("GET", "POST", "PUT", "DELETE");
+//            }
+//        };
+//    }
 
 }

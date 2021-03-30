@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  * @date 2021/3/27
  */
 @Slf4j
-@RequestMapping("/meituan/accessKey")
+@RequestMapping("/meituan/user/login_registry/accessKey")
 public class AccessKeyController extends BaseController {
 
     @Autowired

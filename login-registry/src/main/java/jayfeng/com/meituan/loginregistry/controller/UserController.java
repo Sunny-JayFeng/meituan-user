@@ -16,7 +16,7 @@ import java.util.Map;
  * @date 2020/08/29
  */
 @RestController
-@RequestMapping("/meituan/user")
+@RequestMapping("/meituan/user/login_registry")
 @Slf4j
 public class UserController extends BaseController {
 

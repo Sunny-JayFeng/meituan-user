@@ -32,6 +32,7 @@ public class UserInterceptor extends InterceptorHandler implements HandlerInterc
                              HttpServletResponse response,
                              Object handler) throws IOException {
         boolean loginAllReady = preHandle(request, CookieConstant.USER_KEY.getCookieKey(), RedisConstant.USER_UUID_MAP.getRedisMapKey());
+        System.out.println(request.getRequestURL());
         if (!loginAllReady) {
             log.info("用户未登录，重定向到登录页面");
             response.sendRedirect("/meituan/login/user/login.html");

@@ -17,13 +17,13 @@ import java.util.List;
 @Repository
 public interface AccessKeyDao {
 
-    @Select("SELECT `id`, `region_id`, `access_key_id`, `secret` FROM `access_key`")
+    @Select("SELECT `id`, `region_id`, `access_key_id`, `secret`, `type` FROM `access_key`")
     List<AccessKey> selectAllAccessKey();
 
-    @Select("SELECT `id`, `region_id`, `access_key_id`, `secret` FROM `access_key` WHERE `type` = #{type}")
+    @Select("SELECT `id`, `region_id`, `access_key_id`, `secret`, `type` FROM `access_key` WHERE `type` = #{type}")
     List<AccessKey> selectAccessKeyList(@Param("type") Integer type);
 
-    @Select("SELECT `id`, `region_id`, `access_key_id`, `secret`, `create_time`, `update_time` FROM `access_key` WHERE `id` = #{id}")
+    @Select("SELECT `id`, `region_id`, `access_key_id`, `secret`, `type`, `create_time`, `update_time` FROM `access_key` WHERE `id` = #{id}")
     AccessKey selectAccessKey(@Param("id") Integer id);
 
     @Delete("DELETE FROM `access_key` WHERE `id` = #{id}")

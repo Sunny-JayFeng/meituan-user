@@ -40,6 +40,12 @@ public class EncryptUtil {
         return encrypt(password, salt);
     }
 
+    /**
+     * 校验密码
+     * @param password 明文密码
+     * @param encryptedPassword 密文密码
+     * @return 返回校验结果
+     */
     public boolean matches(String password, String encryptedPassword) {
         if (ObjectUtils.isEmpty(password)) {
             // 抛出异常

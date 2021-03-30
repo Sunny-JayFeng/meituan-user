@@ -23,20 +23,20 @@ public class UserInterceptorConfig implements WebMvcConfigurer {
      */
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userInterceptor)
-                .addPathPatterns("/meituan/user/**")
-                .excludePathPatterns("/meituan/user/getIdentifyCode/*",
-                                     "/meituan/user/loginByCode",
-                                     "/meituan/user/loginByPassword",
-                                     "/meituan/user/checkPhoneExist/*",
-                                     "/meituan/user/checkIdCardExist/*",
-                                     "/meituan/user/registry",
-                                     "/meituan/user/checkAccountSafe",
-                                     "/meituan/user/verifyCheckIdentifyCode",
-                                     "/meituan/user/checkExistsTicket/*",
-                                     "/meituan/user/retrievePassword",
-                                     "/meituan/user/*.html",
-                                     "/meituan/user/*.css",
-                                     "/meituan/user/*.js");
+                .addPathPatterns("/meituan/user/login_registry/**")
+                .excludePathPatterns("/meituan/user/login_registry/getIdentifyCode/*",
+                                     "/meituan/user/login_registry/loginByCode",
+                                     "/meituan/user/login_registry/loginByPassword",
+                                     "/meituan/user/login_registry/checkPhoneExist/*",
+                                     "/meituan/user/login_registry/checkIdCardExist/*",
+                                     "/meituan/user/login_registry/registry",
+                                     "/meituan/user/login_registry/checkAccountSafe",
+                                     "/meituan/user/login_registry/verifyCheckIdentifyCode",
+                                     "/meituan/user/login_registry/checkExistsTicket/*",
+                                     "/meituan/user/login_registry/retrievePassword",
+                                     "/meituan/user/login_registry/*.html",
+                                     "/meituan/user/login_registry/*.css",
+                                     "/meituan/user/login_registry/*.js");
     }
 
 }

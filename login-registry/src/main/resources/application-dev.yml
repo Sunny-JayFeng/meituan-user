@@ -11,7 +11,7 @@ spring:
      write-database:
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.alibaba.druid.pool.DruidDataSource
-      url: jdbc:mysql://127.0.0.1:3306/meituan_user_account?characterEncoding=utf-8&serverTimezone=CST
+      url: jdbc:mysql://127.0.0.1:3306/meituan_user_account?characterEncoding=utf-8
       username: root
       password: root130626
       # 配置 druid 连接池
@@ -54,7 +54,7 @@ spring:
 
   # REDIS 配置
   redis:
-    host: 192.168.100.103
+    host: 192.168.43.206
     port: 6379
     jedis:
       pool:
