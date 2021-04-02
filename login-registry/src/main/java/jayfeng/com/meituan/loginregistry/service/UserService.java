@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -44,11 +45,29 @@ public class UserService {
     @Autowired
     private RedisService redisService;
     @Autowired
-    private DateUtil dateUtil;
-    @Autowired
     private EncryptUtil encryptUtil;
     @Autowired
     private RandomUtil randomUtil;
+
+    // 用户有效
+    private static final Integer USER_VALID = 1;
+    // 用户失效
+    private static final Integer USER_INVALID = 0;
+
+    private Gson gson = new Gson();
+
+    /**
+     * 获取已登录用户对象
+     * @param request request
+     * @return 返回对象
+     */
+    public ResponseData findUser(HttpServletRequest request) {
+        Object userObj = cookieManagement.getLoginUser(request, CookieConstant.USER_KEY.getCookieKey(), RedisConstant.USER_UUID_MAP.getRedisMapKey());
+        if (userObj == null) return ResponseData.createSuccessResponseData("findUserInfo", null);
+        User user = gson.fromJson(userObj.toString(), User.class);
+        log.info("findUser 获取已登录用户信息 user: {}", user);
+        return ResponseData.createSuccessResponseData("findUserInfo", user);
+    }
 
     /**
      * 用户通过 手机号 + 验证码 登录
@@ -73,7 +92,7 @@ public class UserService {
             User user = userDao.selectOneByPhone(phone);
             if (user != null) {
                 log.info("loginByCode 用户验证码登录成功, user: {}", user);
-                loginSuccess(response);
+                loginSuccess(response, user);
                 user.setPassword(null); // 返回前端，不展示密码
                 return ResponseData.createSuccessResponseData("userLoginByCodeInfo", user);
             } else {
@@ -112,7 +131,7 @@ public class UserService {
         // 验证明文密码和加密密码是否匹配
         if (encryptUtil.matches(password, user.getPassword())) {
             log.info("loginByPassword 用户手机号密码登录成功, user: {}", user);
-            loginSuccess(response);
+            loginSuccess(response, user);
             user.setPassword(null);
             return ResponseData.createSuccessResponseData("userLoginByPasswordInfo", user);
         } else {
@@ -125,10 +144,20 @@ public class UserService {
      * 登录成功，设置 cookie 和 redis 缓存
      * @param response 用于设置 cookie
      */
-    private void loginSuccess(HttpServletResponse response) {
+    private void loginSuccess(HttpServletResponse response, User user) {
         String value = UUID.randomUUID().toString();
         cookieManagement.setCookie(response, CookieConstant.USER_KEY.getCookieKey(), value);
-        redisService.addUUID(RedisConstant.USER_UUID_MAP.getRedisMapKey(), value);
+        redisService.addUUID(RedisConstant.USER_UUID_MAP.getRedisMapKey(), value, gson.toJson(user));
+    }
+
+    /**
+     * 根据用户 id 设置用户是否有效
+     * @param userId 用户 id
+     * @param isValid 是否有效
+     */
+    private void setUserIsValid(Integer userId, Integer isValid) {
+        log.info("setUserIsValid 设置用户是否有效 userId: {}, isValid: {}", userId, isValid);
+        userDao.updateUserIsValid(userId, isValid);
     }
 
     /**
@@ -320,11 +349,41 @@ public class UserService {
      * @param id 用户 id
      * @return 响应数据，返回 ResponseData 对象
      */
-    public ResponseData closeUserAccount(Integer id) {
+    public ResponseData cancelUserAccount(Integer id) {
+        if (ObjectUtils.isEmpty(id)) {
+            log.info("cancelUserAccount 用户注销失败, id 为空");
+            return ResponseData.createFailResponseData("cancelUserAccountInfo", false, "注销失败", "cancel_error");
+        }
+        User user = userDao.selectOneById(id);
+        if (user == null) {
+            log.info("cancelUserAccount 用户注销失败, 不存在此用户");
+            return ResponseData.createFailResponseData("cancelUserAccountInfo", false, "注销失败", "cancel_error");
+        }
         log.info("closeUserAccount, 注销一个用户, id: {}", id);
-        userDao.deleteUserById(id);
+        setUserIsValid(id, USER_INVALID);
         log.info("closeUserAccount, 注销成功");
-        return ResponseData.createSuccessResponseData("closeUserAccountInf", null);
+        return ResponseData.createSuccessResponseData("closeUserAccountInfo", true);
+    }
+
+    /**
+     * 取消注销一个账号
+     * @param id 用户 id
+     * @return
+     */
+    public ResponseData reuseUserAccount(Integer id) {
+        if (ObjectUtils.isEmpty(id)) {
+            log.info("reuseUserAccount 用户取消注销失败, id 为空");
+            return ResponseData.createFailResponseData("reuseUserAccountInfo", false, "取消注销失败", "reuse_error");
+        }
+        User user = userDao.selectOneById(id);
+        if (user == null) {
+            log.info("reuseUserAccount 用户取消注销失败, 不存在此用户");
+            return ResponseData.createFailResponseData("reuseUserAccountInfo", false, "取消注销失败", "reuse_error");
+        }
+        log.info("reuseUserAccount, 用户取消注销, id: {}", id);
+        setUserIsValid(id, USER_VALID);
+        log.info("reuseUserAccount, 取消注销成功");
+        return ResponseData.createSuccessResponseData("reuseUserAccountInfo", true);
     }
 
     /**
@@ -349,7 +408,7 @@ public class UserService {
             return ResponseData.createFailResponseData("changePasswordInfo", false, "手机号格式不正确", "phone_pattern_error");
         }
 
-        User user = userDao.selectOneByPhoneAndPassword(phone, oldPassword);
+        User user = userDao.selectOneByPhone(phone);
         if (user != null) {
             if (checkIdentifyCode(phone, identifyCode)) {
                 userDao.updateUserPasswordByPhone(phone, newPassword, System.currentTimeMillis());

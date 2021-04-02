@@ -28,6 +28,23 @@ public class AccessKeyService {
     private static Map<Integer, List<AccessKey>> accessKeyMap = null;
     private static Random random = new Random();
 
+    /**
+     * 新增一个密钥
+     * @param accessKey 密钥
+     * @return 返回数据
+     */
+    public ResponseData addAccessKey(AccessKey accessKey) {
+        AccessKey oldKey = accessKeyDao.selectOneByAccessKeyId(accessKey.getAccessKeyId());
+        if (oldKey != null){
+            log.info("addAccessKey 密钥新增失败, 密钥已存在 oldKey: {}", oldKey);
+            return ResponseData.createFailResponseData("addAccessKeyInfo", false, "密钥已存在", "access_key_id_exists");
+        }
+        accessKey.setCreateTime(System.currentTimeMillis());
+        accessKey.setUpdateTime(accessKey.getCreateTime());
+        accessKeyDao.addAccessKey(accessKey);
+        log.info("addAccessKey 密钥新增成功 accessKey: {}", accessKey);
+        return ResponseData.createSuccessResponseData("addAccessKeyInfo", true);
+    }
 
     /**
      * 初始化所有短信密钥

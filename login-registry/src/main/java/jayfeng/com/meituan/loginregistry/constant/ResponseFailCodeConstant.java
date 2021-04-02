@@ -13,7 +13,9 @@ public enum ResponseFailCodeConstant {
 
     UNKNOWN_EXCEPTION(999),
 
-    FORBIDDEN(403);
+    REQUEST_FORBIDDEN(403),
+
+    METHOD_NOT_SUPPORTED(405);
 
     private Integer responseCode;
 

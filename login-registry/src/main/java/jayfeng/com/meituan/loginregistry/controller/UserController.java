@@ -24,6 +24,16 @@ public class UserController extends BaseController {
     private UserService userService;
 
     /**
+     * 页面初始化，获取用户信息
+     * @param request 拿到 cookie，获取用户信息
+     * @return
+     */
+    public ResponseMessage findUser(HttpServletRequest request) {
+        log.info("findUser 页面初始化, 获取用户信息");
+        return requestSuccess(userService.findUser(request));
+    }
+
+    /**
      * 用户通过 手机号 + 验证码 登录
      * @param paramsMap 参数
      * @param response 响应
@@ -31,7 +41,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/loginByCode")
     public ResponseMessage loginByCode(@RequestBody Map<String, String> paramsMap, HttpServletResponse response) {
-        log.info("loginByCode, paramsMap: {}", paramsMap);
+        log.info("loginByCode, 用户验证码登录 paramsMap: {}", paramsMap);
         return requestSuccess(userService.loginByCode(paramsMap, response));
     }
 
@@ -42,7 +52,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/getIdentifyCode/{phone}")
     public ResponseMessage getIdentifyCode(@PathVariable("phone") String phone) {
-        log.info("getIdentifyCode, phone: {}", phone);
+        log.info("getIdentifyCode, 获取短信验证码 phone: {}", phone);
         return requestSuccess(userService.sendIdentifyCode(phone));
     }
 
@@ -53,7 +63,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/checkIdentifyCode")
     public ResponseMessage checkIdentifyCode(@RequestBody Map<String, String> paramsMap) {
-        log.info("checkIdentifyCode, paramsMap: {}", paramsMap);
+        log.info("checkIdentifyCode, 检查验证码是否正确 paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkIdentifyCode(paramsMap));
     }
 
@@ -65,7 +75,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/loginByPassword")
     public ResponseMessage loginByPassword(@RequestBody Map<String, String> paramsMap, HttpServletResponse response) {
-        log.info("loginByPassword, paramsMap: {}", paramsMap);
+        log.info("loginByPassword, 用户密码登录 paramsMap: {}", paramsMap);
         return requestSuccess(userService.loginByPassword(paramsMap, response));
     }
 
@@ -77,7 +87,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/logout")
     public ResponseMessage userLogout(HttpServletRequest request, HttpServletResponse response) {
-        log.info("userLogout");
+        log.info("userLogout 用户退出登录");
         return requestSuccess(userService.userLogout(request, response));
     }
 
@@ -88,7 +98,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/registry")
     public ResponseMessage userRegistry(@RequestBody Map<String, String> registryMessage) {
-        log.info("userRegistry, registryMessage: {}", registryMessage);
+        log.info("userRegistry, 用户注册 registryMessage: {}", registryMessage);
         return requestSuccess(userService.userRegistry(registryMessage));
     }
 
@@ -97,10 +107,21 @@ public class UserController extends BaseController {
      * @param id 用户 id
      * @return 返回 ResponseMessage 对象
      */
-    @DeleteMapping("/closeUserAccount/{id}")
-    public ResponseMessage closeUserAccount(@PathVariable("id") Integer id) {
-        log.info("closeUserAccount, id: {}", id);
-        return requestSuccess(userService.closeUserAccount(id));
+    @PutMapping("/cancelUserAccount/{id}")
+    public ResponseMessage cancelUserAccount(@PathVariable("id") Integer id) {
+        log.info("cancelUserAccount, 用户注销 id: {}", id);
+        return requestSuccess(userService.cancelUserAccount(id));
+    }
+
+    /**
+     * 用户取消注销
+     * @param id 用户 id
+     * @return 返回 ResponseMessage 对象
+     */
+    @PutMapping("/reuseUserAccount/{id}")
+    public ResponseMessage reuseUserAccount(@PathVariable("id") Integer id) {
+        log.info("reuseUserAccount 用户取消注销 id: {}", id);
+        return requestSuccess(userService.reuseUserAccount(id));
     }
 
     /**
@@ -110,7 +131,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/changePassword")
     public ResponseMessage changePassword(@RequestBody Map<String, String> paramsMap) {
-        log.info("changePassword, paramsMap: {}", paramsMap);
+        log.info("changePassword, 用户修改密码 paramsMap: {}", paramsMap);
         return requestSuccess(userService.changePassword(paramsMap));
     }
 
@@ -121,7 +142,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkAccountSafe")
     public ResponseMessage checkAccountSafe(@RequestBody Map<String, String> paramsMap) {
-        log.info("checkAccountSafe, paramsMap: {}", paramsMap);
+        log.info("checkAccountSafe, 用户重置密码 paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkAccountSafe(paramsMap));
     }
 
@@ -132,7 +153,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkExistsTicket/{phone}")
     public ResponseMessage checkExistsTicket(@PathVariable String phone) {
-        log.info("checkExistsTicket, phone: {}", phone);
+        log.info("checkExistsTicket, 检查是否存在令牌 phone: {}", phone);
         return requestSuccess(userService.checkExistsTicket(phone));
     }
 
@@ -143,7 +164,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/verifyCheckIdentifyCode")
     public ResponseMessage verifyCheckIdentifyCode(@RequestBody Map<String, String> paramsMap) {
-        log.info("verifyCheckIdentifyCode, paramsMap: {}", paramsMap);
+        log.info("verifyCheckIdentifyCode, 检查二次校验的验证码是否正确 paramsMap: {}", paramsMap);
         return requestSuccess(userService.verifyCheckIdentifyCode(paramsMap));
     }
 
@@ -154,7 +175,7 @@ public class UserController extends BaseController {
      */
     @PutMapping("/retrievePassword")
     public ResponseMessage retrievePassword(@RequestBody Map<String, String> paramsMap) {
-        log.info("retrievePassword, paramsMap: {}", paramsMap);
+        log.info("retrievePassword, 重置密码 paramsMap: {}", paramsMap);
         return requestSuccess(userService.retrievePassword(paramsMap));
     }
 
@@ -165,7 +186,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/checkPhoneExist/{phone}")
     public ResponseMessage checkPhoneExist(@PathVariable("phone") String phone) {
-        log.info("checkPhoneExist, phone: {}", phone);
+        log.info("checkPhoneExist, 检查手机号是否存在 phone: {}", phone);
         return requestSuccess(userService.checkPhoneExist(phone));
     }
 
@@ -176,7 +197,7 @@ public class UserController extends BaseController {
      */
     @GetMapping("/checkIdCardExist/{idCard}")
     public ResponseMessage checkIdCardExist(@PathVariable("idCard") String idCard) {
-        log.info("checkIdCardExist, idCard: {}", idCard);
+        log.info("checkIdCardExist, 检查身份证是否已存在 idCard: {}", idCard);
         return requestSuccess(userService.checkIdCardExist(idCard));
     }
 
@@ -187,7 +208,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkUserNameExist")
     public ResponseMessage checkUserNameExist(@RequestBody Map<String, String> paramsMap) {
-        log.info("checkUserNameExist, paramsMap: {}", paramsMap);
+        log.info("checkUserNameExist, 检查用户名是否已存在 paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkUserNameExist(paramsMap));
     }
 
@@ -198,7 +219,7 @@ public class UserController extends BaseController {
      */
     @PostMapping("/checkEmailExist")
     public ResponseMessage checkEmailExist(@RequestBody Map<String, String> paramsMap) {
-        log.info("checkEmailExist, paramsMap: {}", paramsMap);
+        log.info("checkEmailExist, 检查邮箱是否已存在 paramsMap: {}", paramsMap);
         return requestSuccess(userService.checkEmailExist(paramsMap));
     }
 }

@@ -32,13 +32,25 @@ public class RedisService {
     }
 
     /**
+     * 获取某个 map 中的某个键值对的值
+     * @param redisKey map key
+     * @param sessionId 键
+     * @return 值
+     */
+    public Object getUserJSON(String redisKey, String sessionId) {
+        Object userObj = redisOperate.getValueForHash(redisKey, sessionId);
+        log.info("getUserJSON 从 redis 缓存中获取用户 userObj: {}", userObj);
+        return userObj;
+    }
+
+    /**
      * 存入 uuid
      * @param redisKey 哪一个 map
      * @param sessionId 存入的 key
      */
-    public void addUUID(String redisKey, String sessionId) {
+    public void addUUID(String redisKey, String sessionId, String objectStr) {
         log.info("addUUID 向redis缓存中添加一个uuid, redisKey: {}, UUID: {}", redisKey, sessionId);
-        redisOperate.setForHash(redisKey, sessionId, RedisConstant.JSESSIONID_VALUE.getValue());
+        redisOperate.setForHash(redisKey, sessionId, objectStr);
     }
 
     /**

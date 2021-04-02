@@ -1,6 +1,7 @@
 package jayfeng.com.meituan.loginregistry.handler;
 
 import jayfeng.com.meituan.loginregistry.redis.RedisService;
+import jayfeng.com.meituan.loginregistry.util.CookieManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 public class InterceptorHandler {
 
     @Autowired
-    private RedisService redisService;
+    private CookieManagement cookieManagement;
 
     /**
      * 拦截请求，判断是否有 sessionId
@@ -27,19 +28,8 @@ public class InterceptorHandler {
      * @return 返回是否已登录
      */
     public Boolean preHandle(HttpServletRequest request, String cookieKey, String redisMapKey) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null && cookies.length != 0) {
-            for (Cookie cookie : cookies) {
-                String key = cookie.getName();
-                if (cookieKey.equals(key)) {
-                    String value = cookie.getValue();
-                    if (redisService.hasThisUUID(redisMapKey, value)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        Object userObj = cookieManagement.getLoginUser(request, cookieKey, redisMapKey);
+        return userObj != null;
     }
 
 }

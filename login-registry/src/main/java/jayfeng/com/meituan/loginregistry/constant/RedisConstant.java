@@ -7,11 +7,7 @@ package jayfeng.com.meituan.loginregistry.constant;
  */
 public enum RedisConstant {
 
-    ADMIN_UUID_MAP("adminUUIDMap"),
-    SELLER_UUID_MAP("sellerUUIDMap"),
     USER_UUID_MAP("userUUIDMap"),
-
-    JSESSIONID_VALUE("VALUE"),
 
     IDENTIFY_TIMEOUT(60 * 10L), // 验证码的过期时间
 

@@ -1,10 +1,13 @@
 package jayfeng.com.meituan.loginregistry.util;
 
 import jayfeng.com.meituan.loginregistry.constant.CookieConstant;
+import jayfeng.com.meituan.loginregistry.redis.RedisService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -16,6 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class CookieManagement {
 
+    @Autowired
+    private RedisService redisService;
+
     /**
      * 创建一个 cookie
      * @param key cookie 的 key
@@ -24,14 +30,30 @@ public class CookieManagement {
      */
     public Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
-        if (key.equals(CookieConstant.ADMIN_KEY.getCookieKey())) {
-            cookie.setMaxAge(-1); // 如果是管理员登录，则 cookie 在浏览器关闭后失效
-        } else {
-            cookie.setMaxAge(60 * 60 * 24 * 30 * 12 * 10); // 如果是商家或者用户登录，cookie 在 10 年后失效
-        }
+        cookie.setMaxAge(60 * 60 * 24 * 30 * 12 * 10); // cookie 在 10 年后失效
         cookie.setPath(CookieConstant.PATH.getCookiePath());
         cookie.setDomain(CookieConstant.DO_MAIN.getCookieDoMain());
         return cookie;
+    }
+
+    /**
+     * 获取当前用户已登录的 cookie
+     * @param request request
+     * @param cookieKey cookie key
+     * @param redisMapKey redisMap key
+     * @return 返回 cookie
+     */
+    public Object getLoginUser(HttpServletRequest request, String cookieKey, String redisMapKey) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null && cookies.length != 0) {
+            for (Cookie cookie : cookies) {
+                String key = cookie.getName();
+                if (cookieKey.equals(key)) {
+                    return redisService.getUserJSON(redisMapKey, cookie.getValue());
+                }
+            }
+        }
+        return null;
     }
 
     /**

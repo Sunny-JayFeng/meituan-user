@@ -96,6 +96,16 @@ public class RedisOperate {
     }
 
     /**
+     * 获取某个 map 中的某个键值对的值
+     * @param hashKey map key
+     * @param key 键
+     * @return 返回 value
+     */
+    public Object getValueForHash(String hashKey, Object key) {
+        return stringRedisTemplate.opsForHash().get(hashKey, key);
+    }
+
+    /**
      * 删除 key-value
      * @param key 键
      * @return 返回是否删除成功

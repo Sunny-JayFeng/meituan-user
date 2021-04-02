@@ -92,6 +92,13 @@ public class User {
     private Long birthday;
 
     /**
+     * 当前用户是否有效（用户选择注销，在 14 天内为无效，14 天之后删除用户）
+     * 0 -- 无效
+     * 1 -- 有效
+     */
+    private Integer isValid;
+
+    /**
      * 创建时间
      */
     private Long createTime;

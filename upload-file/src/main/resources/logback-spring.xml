@@ -5,12 +5,12 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <springProfile name="dev">
                 <FileNamePattern>
-                    E:/Duing/LevelTwo/练习/log/upload-file-model/%d{yyyy-MM-dd}.log
+                    E:/Duing/LevelTwo/练习/log/user/upload-file-model/%d{yyyy-MM-dd}.log
                 </FileNamePattern>
             </springProfile>
             <springProfile name="prd">
                 <FileNamePattern>
-                    /var/log/meituan-log/upload-file-model/%d{yyyy-MM-dd}.log
+                    /var/log/meituan-user-log/upload-file-model/%d{yyyy-MM-dd}.log
                 </FileNamePattern>
             </springProfile>
         </rollingPolicy>
@@ -30,7 +30,7 @@
         </encoder>
     </appender>
 
-    <logger name="jayfeng.meituan.loginregistry.dao" level="DEBUG"/>
+    <logger name="jayfeng.com.meituan.uploadfile.dao" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="FILE"/>

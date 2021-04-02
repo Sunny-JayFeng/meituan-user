@@ -7,8 +7,6 @@ package jayfeng.com.meituan.loginregistry.constant;
  */
 public enum CookieConstant {
 
-    ADMIN_KEY("adminuuid"),
-    SELLER_KEY("selleruuid"),
     USER_KEY("useruuid"),
 
 //    DO_MAIN("mymeituan.com"),
