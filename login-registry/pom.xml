@@ -144,6 +144,15 @@
             <version>4.1.1</version>
         </dependency>
 
+        <!-- 内部 jar -->
+        <dependency>
+            <groupId>jayfeng</groupId>
+            <artifactId>com-meituan-rpc-manager-accesskey</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/com-meituan-rpc-access-key-0.0.1-SNAPSHOT.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -158,6 +167,14 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
                 </configuration>
             </plugin>
         </plugins>

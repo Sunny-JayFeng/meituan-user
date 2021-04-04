@@ -7,10 +7,10 @@ import com.aliyuncs.IAcsClient;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
-import jayfeng.com.meituan.loginregistry.bean.AccessKey;
 import jayfeng.com.meituan.loginregistry.constant.AccessKeyConstant;
 import jayfeng.com.meituan.loginregistry.redis.RedisService;
 import jayfeng.com.meituan.loginregistry.service.AccessKeyService;
+import jayfeng.com.meituan.rpc.accesskey.bean.AccessKey;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,8 @@ public class IdentifyCodeManagement {
 
     private static Random random = new Random();
     private Logger logger = LoggerFactory.getLogger(IdentifyCodeManagement.class);
+
+    private static final Integer IDENTIFY_CODE_ACCESS_KEY = 0;
 
     @Autowired
     private RedisService redisService;
@@ -102,11 +104,12 @@ public class IdentifyCodeManagement {
      * @return 返回验证码发送结果
      */
     public String sendIdentifyCode(String phone, String identifyCode) {
-        AccessKey accessKey = accessKeyService.getAccessKey(AccessKeyConstant.SHORT_MESSAGE_CODE.getAccessKeyType());
+        AccessKey accessKey = accessKeyService.getAccessKey(IDENTIFY_CODE_ACCESS_KEY);
         if (accessKey == null) {
             logger.info("sendIdentifyCode 验证码发送失败, 无法取得密钥");
             return null;
         }
+        log.info("sendIdentifyCode 发送验证码, 类型: {}, 密钥accessKey: {}", IDENTIFY_CODE_ACCESS_KEY, accessKey);
         phone = phone.replaceAll(" ", "");
         DefaultProfile profile = DefaultProfile.getProfile(accessKey.getRegionId(), accessKey.getAccessKeyId(), accessKey.getSecret());
         IAcsClient client = new DefaultAcsClient(profile);
