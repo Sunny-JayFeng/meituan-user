@@ -104,6 +104,18 @@ spring:
         time-between-eviction-runs: 30000
     timeout: 60000
 
+  # rabbitMQ配置
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+
 mybatis:
   configuration:
     map-underscore-to-camel-case: true  # 开启数据库中命名的下划线和小驼峰的转化。
+# dubbo 配置
+dubbo:
+  registry:
+    address: zookeeper://127.0.0.1:2181

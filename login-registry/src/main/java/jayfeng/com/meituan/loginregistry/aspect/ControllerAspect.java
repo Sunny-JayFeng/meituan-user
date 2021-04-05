@@ -56,10 +56,10 @@ public class ControllerAspect {
         threadLocalMap.put(Thread.currentThread().getId(), startTimeThreadLocal);
 
         HttpServletRequest request = this.getHttpServletRequest();
-//        if (!isRequestFromBrowser(request)) {
-//            log.info("请求不是来自浏览器, 拒绝处理");
-//            throw new RequestForbiddenException("您无权访问该服务");
-//        }
+        if (!isRequestFromBrowser(request)) {
+            log.info("请求不是来自浏览器, 拒绝处理");
+            throw new RequestForbiddenException("您无权访问该服务");
+        }
     }
 
     /**

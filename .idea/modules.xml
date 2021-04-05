@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/login-registry/login-registry.iml" filepath="$PROJECT_DIR$/login-registry/login-registry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/personal-message/personal-message.iml" filepath="$PROJECT_DIR$/personal-message/personal-message.iml" />
+      <module fileurl="file://$PROJECT_DIR$/upload-file/upload-file.iml" filepath="$PROJECT_DIR$/upload-file/upload-file.iml" />
+      <module fileurl="file://$PROJECT_DIR$/user.iml" filepath="$PROJECT_DIR$/user.iml" />
+    </modules>
+  </component>
+</project>

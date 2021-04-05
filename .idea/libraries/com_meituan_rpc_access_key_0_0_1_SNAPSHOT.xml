@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="com-meituan-rpc-access-key-0.0.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/login-registry/src/main/resources/lib/com-meituan-rpc-access-key-0.0.1-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/login-registry/src/main/resources/lib/com-meituan-rpc-access-key-0.0.1-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/login-registry/src/main/resources/lib/com-meituan-rpc-access-key-0.0.1-SNAPSHOT.jar!/jayfeng/com/meituan/rpc/accesskey/service" />
+    </SOURCES>
+  </library>
+</component>

@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author JayFeng
  * @date 2020/08/30
  */
-@Component
 @Slf4j
+@Component
 public class IdentifyCodeManagement {
 
     private static Random random = new Random();

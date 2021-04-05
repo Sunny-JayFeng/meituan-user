@@ -5,6 +5,7 @@ import jayfeng.com.meituan.loginregistry.bean.User;
 import jayfeng.com.meituan.loginregistry.constant.CookieConstant;
 import jayfeng.com.meituan.loginregistry.constant.RedisConstant;
 import jayfeng.com.meituan.loginregistry.dao.UserDao;
+import jayfeng.com.meituan.loginregistry.exception.RequestForbiddenException;
 import jayfeng.com.meituan.loginregistry.redis.RedisService;
 import jayfeng.com.meituan.loginregistry.response.ResponseData;
 import jayfeng.com.meituan.loginregistry.util.*;
@@ -78,16 +79,10 @@ public class UserService {
     public ResponseData loginByCode(Map<String, String> paramsMap, HttpServletResponse response) {
         String phone = paramsMap.get("phone");
         String identifyCode = paramsMap.get("identifyCode");
-        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode)) {
-            log.info("loginByCode 用户验证码登录失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
-            return ResponseData.createFailResponseData("userLoginByCodeInfo", false, "手机号或验证码为空", "phone_or_identify_code_is_empty");
+        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode) || !patternMatch.isPhone(phone)) {
+            log.info("loginByCode 用户验证码登录失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
-        // 如果手机号格式不符合要求
-        if (!patternMatch.isPhone(phone)) {
-            log.info("loginByCode 用户验证码登录失败, 手机号格式不正确, phone: {}", phone);
-            return ResponseData.createFailResponseData("userLoginByCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
-        }
-
         if (checkIdentifyCode(phone, identifyCode)) { // 如果验证码正确
             User user = userDao.selectOneByPhone(phone);
             if (user != null) {
@@ -114,14 +109,9 @@ public class UserService {
     public ResponseData loginByPassword(Map<String, String> paramsMap, HttpServletResponse response) {
         String phone = paramsMap.get("phone");
         String password = paramsMap.get("password");
-        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(password)) {
-            log.info("loginByPassword, 用户手机号密码登录失败, 手机号或密码为空, phone: {}, password: {}", phone, password);
-            return ResponseData.createFailResponseData("userLoginByPasswordInfo", false, "手机号或密码为空", "phone_or_password_is_empty");
-        }
-        // 如果手机号格式不符合要求
-        if (!patternMatch.isPhone(phone)) {
-            log.info("loginByPassword 用户手机号密码登录失败, 手机号格式不正确, phone: {}", phone);
-            return ResponseData.createFailResponseData("userLoginByPasswordInfo", false, "手机号格式不正确", "phone_pattern_error");
+        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(password) || !patternMatch.isPhone(phone)) {
+            log.info("loginByPassword 用户手机号密码登录失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         User user = userDao.selectOneByPhone(phone);
         if (user == null) {
@@ -179,15 +169,11 @@ public class UserService {
      * @return 响应数据，返回 ResponseData 对象
      */
     public ResponseData sendIdentifyCode(String phone) {
-        if (ObjectUtils.isEmpty(phone)) {
-            log.info("sendIdentifyCode 验证码发送失败, 手机号为空");
-            return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "手机号为空", "phone_is_empty");
+        if (ObjectUtils.isEmpty(phone) || !patternMatch.isPhone(phone)) {
+            log.info("sendIdentifyCode 验证码发送失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
-        // 如果手机号格式不符合要求
-        if (!patternMatch.isPhone(phone)) {
-            log.info("sendIdentifyCode 验证码发送失败, 手机号格式不正确, phone: {}", phone);
-            return ResponseData.createFailResponseData("sendIdentifyCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
-        }
+
         // 如果手机号不为空并且格式正确
         String identifyCode = identifyCodeManagement.getIdentifyCode(phone);
         log.info("sendIdentifyCode, 成功获取到验证码: {}", identifyCode);
@@ -228,13 +214,9 @@ public class UserService {
     public ResponseData checkIdentifyCode(Map<String, String> paramsMap) {
         String phone = paramsMap.get("phone");
         String identifyCode = paramsMap.get("identifyCode");
-        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode)) {
-            log.info("checkIdentifyCode 验证失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
-            return ResponseData.createFailResponseData("checkIdentifyCodeInfo", false, "手机号或验证码为空", "phone_or_identify_code_is_empty");
-        }
-        if (!patternMatch.isPhone(phone)) {
-            log.info("checkIdentifyCode 验证失败, 手机号格式不正确");
-            return ResponseData.createFailResponseData("checkIdentifyCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
+        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode) || !patternMatch.isPhone(phone)) {
+            log.info("checkIdentifyCode 验证码校验失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         if (checkIdentifyCode(phone, identifyCode)) {
             log.info("checkIdentifyCode 验证码正确");
@@ -273,17 +255,12 @@ public class UserService {
         String phone = registryMessage.get("phone");
         String password = registryMessage.get("password");
         String identifyCode = registryMessage.get("identifyCode");
-        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(identifyCode)) {
-            log.info("userRegistry 用户注册失败, 手机号、密码或验证码为空, phone: {}, password: {}, identifyCode: {}", phone, password, identifyCode);
-            return ResponseData.createFailResponseData("userRegistryInfo", false, "手机号、密码或验证码为空", "phone_or_password_or_identify_code_is_empty");
+        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(identifyCode) || !checkPhoneAndPassword(phone, password)) {
+            log.info("userRegistry 用户注册失败失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
 
-        // 检查手机号和密码是否符合要求
-        if (!checkPhoneAndPassword(phone, password)) {
-            log.info("userRegistry 用户注册失败, 手机号或密码不符合要求, phone: {}, password: {}", phone, password);
-            return ResponseData.createFailResponseData("userRegistryInfo", false, "手机号或密码不符合要求", "phone_or_password_error");
-
-        } else if (userDao.selectOneByPhone(phone) != null) {
+        if (userDao.selectOneByPhone(phone) != null) {
             return ResponseData.createFailResponseData("userRegistryInfo", false, "该手机号已被注册, 请直接登录或找回密码", "phone_already_registry");
 
         } else if (checkIdentifyCode(phone, identifyCode)) {
@@ -351,8 +328,8 @@ public class UserService {
      */
     public ResponseData cancelUserAccount(Integer id) {
         if (ObjectUtils.isEmpty(id)) {
-            log.info("cancelUserAccount 用户注销失败, id 为空");
-            return ResponseData.createFailResponseData("cancelUserAccountInfo", false, "注销失败", "cancel_error");
+            log.info("cancelUserAccount 用户注销失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         User user = userDao.selectOneById(id);
         if (user == null) {
@@ -372,8 +349,8 @@ public class UserService {
      */
     public ResponseData reuseUserAccount(Integer id) {
         if (ObjectUtils.isEmpty(id)) {
-            log.info("reuseUserAccount 用户取消注销失败, id 为空");
-            return ResponseData.createFailResponseData("reuseUserAccountInfo", false, "取消注销失败", "reuse_error");
+            log.info("reuseUserAccount 用户取消注销失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         User user = userDao.selectOneById(id);
         if (user == null) {
@@ -397,15 +374,9 @@ public class UserService {
         String oldPassword = paramsMap.get("oldPassword");
         String newPassword = paramsMap.get("newPassword");
         String identifyCode = paramsMap.get("identifyCode");
-        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(oldPassword) || ObjectUtils.isEmpty(newPassword) || ObjectUtils.isEmpty(identifyCode)) {
-            log.info("changePassword 修改密码失败, 手机号、旧密码、新密码或验证码为空, phone: {}, oldPassword: {}, newPassword: {}, identifyCode: {}", phone, oldPassword, newPassword, identifyCode);
-            return ResponseData.createFailResponseData("changePasswordInfo", false, "手机号、旧密码、新密码或验证码为空", "phone_or_old_password_or_new_password_or_identify_code_is_empty");
-        }
-
-        // 如果手机号格式不符合要求
-        if (!patternMatch.isPhone(phone)) {
-            log.info("changePassword 修改密码失败, 手机号格式不正确, phone: {}", phone);
-            return ResponseData.createFailResponseData("changePasswordInfo", false, "手机号格式不正确", "phone_pattern_error");
+        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(oldPassword) || ObjectUtils.isEmpty(newPassword) || ObjectUtils.isEmpty(identifyCode) || !patternMatch.isPhone(phone)) {
+            log.info("changePassword 修改密码失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
 
         User user = userDao.selectOneByPhone(phone);
@@ -432,8 +403,8 @@ public class UserService {
     public ResponseData checkAccountSafe(Map<String, String> paramsMap) {
         String account = paramsMap.get("account");
         if (ObjectUtils.isEmpty(account)) {
-            log.info("checkAccountSafe 检测安全性失败, 账号为空");
-            return ResponseData.createFailResponseData("checkAccountSafeInfo", null, "账号为空", "account_is_empty");
+            log.info("checkAccountSafe 检测安全性失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         Boolean checkResult;
         User tempUser = new User();
@@ -479,8 +450,8 @@ public class UserService {
     public ResponseData checkExistsTicket(String phone) {
         log.info("checkExistsTicket, phone: {}", phone);
         if (ObjectUtils.isEmpty(phone)) {
-            log.info("checkExistsTicket 校验失败, 手机号为空");
-            return ResponseData.createFailResponseData("checkTicketExistsInfo", false, "身份验证码已过期，请重新校验，即将返回找回登录密码页面", "over_time");
+            log.info("checkExistsTicket 校验失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         if (ticketManagement.ticketExists(phone)) {
             log.info("checkExistsTicket 校验成功, ticket 存在");
@@ -568,18 +539,12 @@ public class UserService {
     public ResponseData verifyCheckIdentifyCode(Map<String, String> paramsMap) {
         String phone = paramsMap.get("phone");
         String identifyCode = paramsMap.get("identifyCode");
-        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode)) {
-            log.info("verifyCheckIdentifyCode 二次校验失败, 手机号或验证码为空, phone: {}, identifyCode: {}", phone, identifyCode);
-            return ResponseData.createFailResponseData("verifyCheckIdentifyCodeInfo", false, "手机号或验证码为空", "phone_or_identify_code_is_empty");
+        if (ObjectUtils.isEmpty(phone) || ObjectUtils.isEmpty(identifyCode) || !patternMatch.isPhone(phone)) {
+            log.info("verifyCheckIdentifyCode 二次校验失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
 
         log.info("verifyCheckIdentifyCode 二次校验, phone: {}, identifyCode: {}", phone, identifyCode);
-        // 如果手机号不满足格式要求
-        if (!patternMatch.isPhone(phone)) {
-            log.info("verifyCheckIdentifyCode 二次校验失败, 手机号格式不正确, phone: {}", phone);
-            return ResponseData.createFailResponseData("verifyCheckIdentifyCodeInfo", false, "手机号格式不正确", "phone_pattern_error");
-        }
-
         User user = userDao.selectOneByPhone(phone);
         if (user != null) { // 如果当前用户存在
             if (checkIdentifyCode(phone, identifyCode)) { // 验证码正确
@@ -612,23 +577,13 @@ public class UserService {
         String newPassword = paramsMap.get("newPassword");
         String ticket = paramsMap.get("ticket");
 
-        if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(newPassword) || ObjectUtils.isEmpty(ticket)) {
-            log.info("retrievePassword 密码重置失败, 账号、新密码或 ticket 为空, account: {}, newPassword: {}, ticket: {}", account, newPassword, ticket);
-            return ResponseData.createFailResponseData("retrievePasswordInfo", false, "账号、新密码或 ticket 为空", "account_or_new_password_or_ticket_is_empty");
-        }
-
-        if (!patternMatch.isPhone(account)) {
-            log.info("retrievePassword 密码重置失败, 手机号格式不正确, account: {}", account);
-            return ResponseData.createFailResponseData("retrievePasswordInfo", false, "手机号格式不正确", "phone_pattern_error");
-        }
-
-        if (!patternMatch.checkPassword(newPassword)) {
-            log.info("retrievePassword 密码重置失败, 新密码不符合要求, newPassword: {}", newPassword);
-            return ResponseData.createFailResponseData("retrievePasswordInfo", false, "新密码不符合要求", "new_password_error");
+        if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(newPassword) || ObjectUtils.isEmpty(ticket) || !checkPhoneAndPassword(account, newPassword)) {
+            log.info("retrievePassword 密码重置失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
 
         String realTicket = ticketManagement.getTicket(account);
-        if (StringUtils.isEmpty(realTicket) || !ticket.equals(realTicket)) {
+        if (ObjectUtils.isEmpty(realTicket) || !ticket.equals(realTicket)) {
             log.info("retrievePassword 密码重置失败, 安全通行码已过期, ticket: {}, realTicket: {}", ticket, realTicket);
             return ResponseData.createFailResponseData("retrievePasswordInfo", false, "安全通行码已过期", "safe_code_already_time_out");
         }
@@ -648,14 +603,9 @@ public class UserService {
      * @return 响应数据，返回 ResponseData 对象
      */
     public ResponseData checkPhoneExist(String phone) {
-        if (ObjectUtils.isEmpty(phone)) {
-            log.info("checkPhoneExist 校验失败, 手机号为空");
-            return ResponseData.createFailResponseData("checkPhoneExistInfo", null, "手机号为空", "phone_is_empty");
-        }
-        // 如果手机号格式不符合要求
-        if (!patternMatch.isPhone(phone)) {
-            log.info("checkPhoneExist 校验失败, 手机号格式不正确, phone: {}", phone);
-            return ResponseData.createFailResponseData("checkPhoneExistInfo", null, "手机号格式不正确", "phone_pattern_error");
+        if (ObjectUtils.isEmpty(phone) || !patternMatch.isPhone(phone)) {
+            log.info("checkPhoneExist 校验用户号码的重复性失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         Boolean isExist = userDao.selectOneByPhone(phone) != null;
         log.info("checkPhoneExist 校验成功, result: {}", isExist);
@@ -668,6 +618,10 @@ public class UserService {
      * @return 响应数据，返回 ResponseData 对象
      */
     public ResponseData checkIdCardExist(String idCard) {
+        if (ObjectUtils.isEmpty(idCard)) {
+            log.info("checkIdCardExist 校验用户身份证的重复性失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
+        }
         Boolean isExist = userDao.selectOneByIdCard(idCard) != null;
         log.info("checkIdCardExist, result: {}", isExist);
         return ResponseData.createSuccessResponseData("checkIdCardExist", isExist);
@@ -680,6 +634,10 @@ public class UserService {
      */
     public ResponseData checkUserNameExist(Map<String, String> paramsMap) {
         String userName = paramsMap.get("userName");
+        if (ObjectUtils.isEmpty(userName)) {
+            log.info("checkUserNameExist 校验用户名是否存在失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
+        }
         Boolean isExist = userDao.selectOneByUserName(userName) != null;
         log.info("checkUserNameExist, result: {}", isExist);
         return ResponseData.createSuccessResponseData("checkUserNameExistInfo", isExist);
@@ -694,8 +652,8 @@ public class UserService {
         String email = paramsMap.get("email");
         // 如果邮箱格式不正确
         if (!patternMatch.isEmail(email)) {
-            log.info("retrievePasswordByEmail, 邮箱格式不正确, email: {}", email);
-            return ResponseData.createFailResponseData("resetPasswordByEmailInfo", null, "邮箱格式不正确", "email_pattern_error");
+            log.info("checkEmailExist 检验邮箱是否绑定某个用户失败, 参数异常, 请求不是来自浏览器");
+            throw new RequestForbiddenException("您无权访问该服务");
         }
         Boolean isExist = userDao.selectOneByEmail(email) != null;
         log.info("checkEmailExist, result: {}", isExist);

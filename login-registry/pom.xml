@@ -137,6 +137,14 @@
             <version>2.0.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-amqp -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+
+
         <!-- 读写分离 -->
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
@@ -148,9 +156,9 @@
         <dependency>
             <groupId>jayfeng</groupId>
             <artifactId>com-meituan-rpc-manager-accesskey</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/com-meituan-rpc-access-key-0.0.1-SNAPSHOT.jar</systemPath>
+            <systemPath>${project.basedir}/src/main/resources/lib/com-meituan-rpc-access-key-1.0.1.jar</systemPath>
         </dependency>
 
     </dependencies>
