@@ -28,6 +28,7 @@ public class UserController extends BaseController {
      * @param request 拿到 cookie，获取用户信息
      * @return
      */
+    @GetMapping("/findUser")
     public ResponseMessage findUser(HttpServletRequest request) {
         log.info("findUser 页面初始化, 获取用户信息");
         return requestSuccess(userService.findUser(request));

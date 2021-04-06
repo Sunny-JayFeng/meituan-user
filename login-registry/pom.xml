@@ -158,7 +158,7 @@
             <artifactId>com-meituan-rpc-manager-accesskey</artifactId>
             <version>1.0.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/com-meituan-rpc-access-key-1.0.1.jar</systemPath>
+            <systemPath>${project.basedir}/src/main/resources/lib/com-meituan-rpc-access-key-1.0.2.jar</systemPath>
         </dependency>
 
     </dependencies>

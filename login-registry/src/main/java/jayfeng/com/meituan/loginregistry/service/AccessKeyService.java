@@ -24,7 +24,7 @@ import java.util.Random;
 @Service
 public class AccessKeyService {
 
-    @DubboReference(version = "1.0.1")
+    @DubboReference(version = "1.0.2")
     private jayfeng.com.meituan.rpc.accesskey.service.RPCAccessKeyService rpcAccessKeyService;
 
     private static Map<Integer, List<AccessKey>> accessKeyMap = null;
