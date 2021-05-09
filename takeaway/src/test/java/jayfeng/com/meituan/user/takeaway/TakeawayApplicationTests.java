@@ -1,0 +1,13 @@
+package jayfeng.com.meituan.user.takeaway;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class TakeawayApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}

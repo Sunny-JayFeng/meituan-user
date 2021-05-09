@@ -30,7 +30,7 @@ public class CookieManagement {
      */
     public Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60 * 60 * 24 * 30 * 12 * 10); // cookie 在 10 年后失效
+        cookie.setMaxAge(CookieConstant.MAX_AGE.getCookieMaxAge());
         cookie.setPath(CookieConstant.PATH.getCookiePath());
         cookie.setDomain(CookieConstant.DO_MAIN.getCookieDoMain());
         return cookie;
