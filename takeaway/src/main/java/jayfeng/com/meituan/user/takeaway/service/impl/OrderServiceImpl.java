@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 外卖订单业务层实现类
@@ -75,19 +72,32 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 支付
-     * todo 远程调用
+     * todo 远程调用 数据返回
+     * 0 -- 成功
+     * 1 -- 失败 余额不足
+     * 2 -- 失败 (未知原因：繁忙)
      * @param paramsMap 参数
      * @return 返回
      */
     @Override
     public ResponseData payServer(Map<String, String> paramsMap) {
-        return null;
+        int status = new Random().nextInt(3);
+        if (status == 0) {
+            log.info("payServer 支付成功");
+            return ResponseData.createSuccessResponseData("payServerInfo", true);
+        } else if (status == 1) {
+            log.info("payServer 支付失败 余额不足");
+            return ResponseData.createFailResponseData("payServerInfo", false, "余额不足", "insufficient_balance");
+        } else {
+            log.info("payServer 支付失败 未知错误 status: {}", status);
+            return ResponseData.createFailResponseData("payServerInfo", false, "系统繁忙, 请稍后重试", "server_busy");
+        }
     }
 
     /**
      * 下单 -- 订单创建的初始状态 -- 商家未接单
      * 创建订单、扣除津贴、扣除美团红包(若有)、更新优惠券信息(已使用)
-     * todo 一个线程去扣除津贴(远程调用)、一个线程去扣除美团红包(若有)(远程调用)、一个线程去更新优惠券信息(远程调用)
+     * todo 创建订单服务(远程调用)
      * 若都执行成功, 创建订单, 更新进数据库
      * @param order 外卖订单
      * @return 返回
@@ -99,7 +109,9 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 用户取消订单
-     * todo -- 远程调用 订单用户可取消, 商家可接单, 骑手可接单完成订单, 都是同一个接口
+     * todo -- 远程调用 订单用户可取消, 商家可接单, 骑手可接单和确认送达, 都是同一个接口, 改订单的状态
+     * todo -- 如果商家未接单, 可以直接取消, 如果商家已接单, 需要提交申请, 消息通知商家审核
+     * todo -- 取消订单, 需要远程调用退款
      * @param orderId 订单 id
      * @return 返回
      */
